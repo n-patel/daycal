@@ -97,10 +97,9 @@
 			graphHeight = window.innerHeight - margin.top - margin.bottom;
 
         var svg = d3.select("body").append("svg")
-                                       .attr("width", graphWidth + margin.left + margin.right)
+                                       .attr("width", graphWidth + margin.left)
                                        .attr("height", graphHeight + margin.top + margin.bottom)
-                                       .style("margin", "20px")
-                                       .style("border", "1px solid red")
+                                       .style("border", "2px solid red")
                                     .append("g")
                                        .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
 
