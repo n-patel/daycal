@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
 
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
     <!--[if lt IE 9]>
@@ -18,9 +18,9 @@
     <![endif]-->
   </head>
   <body>
-	<div id="graph"></div>
-	<script src="https://d3js.org/d3.v4.min.js"></script>
-	<script type="text/javascript">
+    <div id="graph"></div>
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script type="text/javascript">
 
         // "padding" inside the SVG
         var margin = {top: 30, bottom: 30, left: 50, right: 300};
@@ -64,37 +64,58 @@
                 height = Math.abs(startY - endY),
                 width  = height * 2;
 
+            function resizeEvent() {
+                var obj = d3.select(this);
+                obj.attr("y", roundY(d3.event.y) - 20);
+                d3.select(".event").attr("height", roundY(d3.event.y) - d3.select(".event").attr("y"));
+            }
+
             function dragStart() {
                 d3.select(this).attr("opacity", "0.7");
             }
 
             function dragging() {
                 var obj = d3.select(this);
-                obj.attr("x", roundX(+obj.attr("x") + d3.event.dx))        // unnecessary line. keeping in case I want to update x position in the future.
-                   .attr("y", roundY(d3.event.y));
+                //obj.attr("x", roundX(+obj.attr("x") + d3.event.dx))        // unnecessary line. keeping in case I want to update x position in the future.
+                obj.attr("y", roundY(d3.event.y));
             }
 
             function dragEnd() {
                 d3.select(this).attr("opacity", "1.0");
             }
 
-            var event = svg.append("rect")
-                           .attr("class", "event")
-                           .attr("width", height * 2)
-                           .attr("height", height)
-                           .attr("x", 1)
-                           .attr("y", startY)
-                           .attr("rx", "20")
-                           .attr("ry", "20")
-                           .call(d3.drag().on("start", dragStart)
-                                          .on("drag", dragging)
-                                          .on("end", dragEnd));
+            var eventGroup = svg.append("g")
+
+            var event = eventGroup.append("rect")
+                                  .attr("class", "event")
+                                  .attr("width", height * 2)
+                                  .attr("height", height)
+                                  .attr("x", 1)
+                                  .attr("y", startY)
+                                  .attr("rx", "20")
+                                  .attr("ry", "20")
+                                  .attr("cursor", "move")
+                                  .style("fill", "#666666")
+                                  .call(d3.drag().on("start", dragStart)
+                                                 .on("drag", dragging)
+                                                 .on("end", dragEnd));
+
+            var dragbarHeight = 20;
+            var dragbarBottom = eventGroup.append("rect")
+                                          .attr("class", "eventDragbar")
+                                          .attr("width", event.attr("width") - 2 * event.attr("rx"))
+                                          .attr("height", dragbarHeight)
+                                          .attr("x", event.attr("rx"))
+                                          .attr("y", event.attr("y") + event.attr("height") - dragbarHeight)
+                                          .attr("cursor", "ns-resize")
+                                          .style("fill", "rgb(130,130,130)")
+                                          .call(d3.drag().on("drag", resizeEvent));
         }
 
 
 
-		var graphWidth  = window.innerWidth - margin.left - margin.right,
-			graphHeight = window.innerHeight - margin.top - margin.bottom;
+        var graphWidth  = window.innerWidth - margin.left - margin.right,
+            graphHeight = window.innerHeight - margin.top - margin.bottom;
 
         var svg = d3.select("body").append("svg")
                                        .attr("width", graphWidth + margin.left)
@@ -126,7 +147,7 @@
         var event = createEvent(earliestTick, new Date(2016, 7, 13, 12), svg);
 
 
-	</script>
+    </script>
 
   </body>
 </html>
