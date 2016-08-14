@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+	<div id="graph"></div>
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<script type="text/javascript">
+
+        // "padding" inside the SVG
+        var margin = {top: 30, bottom: 30, left: 50, right: 300};
+
+        function roundX(x) {
+            return 1;
+        }
+
+        /**
+         * Takes a y and rounds it to the y value of the nearest hour.
+         */
+        var roundY = function(y) {
+            function getYFromTranslate(translate) {
+                return translate.replace(/translate\([0-9]+,/, '').replace(')', '');
+            }
+
+            var validYs = [];
+            var ticks = d3.selectAll(".tick").each(function() {
+                validYs.push(getYFromTranslate(d3.select(this).attr("transform")));
+            });
+
+            function getClosest() {
+                var closest = validYs[0];
+                for (i = 1; i < validYs.length; i++) {
+                    if (Math.abs(validYs[i] - y) < Math.abs(closest - y)) {
+                        closest = validYs[i];
+                    }
+                }
+                return closest
+            }
+
+            return getClosest();
+        }
+
+        /**
+         * Creates an event box in the calendar.
+         */
+        var createEvent = function(startTime, endTime, svg) {
+            var startY = y(startTime),
+                endY   = y(endTime),
+                height = Math.abs(startY - endY),
+                width  = height * 2;
+
+            function dragStart() {
+                d3.select(this).attr("opacity", "0.7");
+            }
+
+            function dragging() {
+                var obj = d3.select(this);
+                obj.attr("x", roundX(+obj.attr("x") + d3.event.dx))        // unnecessary line. keeping in case I want to update x position in the future.
+                   .attr("y", roundY(d3.event.y));
+            }
+
+            function dragEnd() {
+                d3.select(this).attr("opacity", "1.0");
+            }
+
+            var event = svg.append("rect")
+                           .attr("class", "event")
+                           .attr("width", height * 2)
+                           .attr("height", height)
+                           .attr("x", 1)
+                           .attr("y", startY)
+                           .attr("rx", "20")
+                           .attr("ry", "20")
+                           .call(d3.drag().on("start", dragStart)
+                                          .on("drag", dragging)
+                                          .on("end", dragEnd));
+        }
+
+
+
+		var graphWidth  = window.innerWidth - margin.left - margin.right,
+			graphHeight = window.innerHeight - margin.top - margin.bottom;
+
+        var svg = d3.select("body").append("svg")
+                                       .attr("width", graphWidth + margin.left + margin.right)
+                                       .attr("height", graphHeight + margin.top + margin.bottom)
+                                       .style("margin", "20px")
+                                       .style("border", "1px solid red")
+                                    .append("g")
+                                       .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
+
+        var innerCal = svg.append("rect")
+                          .attr("width", graphWidth)
+                          .attr("height", graphHeight)
+                          .attr("x", 0)
+                          .attr("y", 0)
+                          .style("fill", "#eeeeee");
+
+        var earliestTick = new Date(2016, 7, 13, 9),
+            latestTick   = new Date(2016, 7, 14, 2);
+
+        var y = d3.scaleTime()
+                  .domain([earliestTick, latestTick])
+                  .range([0, graphHeight]);
+        var yAxis = d3.axisLeft()
+                  .scale(y)
+                  .ticks(20)
+                  .tickSize(-innerCal.attr("width"));
+        var yGroup = svg.append("g")
+                        .call(yAxis)
+
+        var event = createEvent(earliestTick, new Date(2016, 7, 13, 12), svg);
+
+
+	</script>
+
+  </body>
+</html>
