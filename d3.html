@@ -64,20 +64,29 @@
                 height = Math.abs(startY - endY),
                 width  = height * 2;
 
-            function resizeEvent() {
+            var dragbarHeight = 20;
+
+
+            function resizeEvent(d) {
                 var obj = d3.select(this);
-                obj.attr("y", roundY(d3.event.y) - 20);
-                d3.select(".event").attr("height", roundY(d3.event.y) - d3.select(".event").attr("y"));
+                // d.x += d3.event.dx;
+                d.y += d3.event.dy;
+                // move dragbar
+                obj.attr("transform", "translate(" + d.x + "," + (roundY(d.y) - dragbarHeight) + ")");
+
+                // resize event rect
+                d3.select(".event").attr("height", (roundY(d.y) - d3.select(".event").attr("y")));
+            }
+
+            function dragging(d) {
+                var obj = d3.select(this);
+                // d.x += d3.event.dx;
+                d.y += d3.event.dy;
+                obj.attr("transform", "translate(" + d.x + "," + roundY(d.y) + ")")
             }
 
             function dragStart() {
                 d3.select(this).attr("opacity", "0.7");
-            }
-
-            function dragging() {
-                var obj = d3.select(this);
-                //obj.attr("x", roundX(+obj.attr("x") + d3.event.dx))        // unnecessary line. keeping in case I want to update x position in the future.
-                obj.attr("y", roundY(d3.event.y));
             }
 
             function dragEnd() {
@@ -85,6 +94,13 @@
             }
 
             var eventGroup = svg.append("g")
+                                .data([{ x: 0, y: 0}])
+                                .attr("transform", function(d) {
+                                    return "translate(" + d.x + "," + d.y + ")";
+                                })
+                                .call(d3.drag().on("start", dragStart)
+                                               .on("drag", dragging)
+                                               .on("end", dragEnd));
 
             var event = eventGroup.append("rect")
                                   .attr("class", "event")
@@ -96,20 +112,20 @@
                                   .attr("ry", "20")
                                   .attr("cursor", "move")
                                   .style("fill", "#666666")
-                                  .call(d3.drag().on("start", dragStart)
-                                                 .on("drag", dragging)
-                                                 .on("end", dragEnd));
 
-            var dragbarHeight = 20;
+
             var dragbarBottom = eventGroup.append("rect")
-                                          .attr("class", "eventDragbar")
-                                          .attr("width", event.attr("width") - 2 * event.attr("rx"))
-                                          .attr("height", dragbarHeight)
-                                          .attr("x", event.attr("rx"))
-                                          .attr("y", event.attr("y") + event.attr("height") - dragbarHeight)
-                                          .attr("cursor", "ns-resize")
-                                          .style("fill", "rgb(130,130,130)")
-                                          .call(d3.drag().on("drag", resizeEvent));
+                                           .data([{ x: event.attr("rx"),
+                                                    y: event.attr("y") + event.attr("height") - dragbarHeight}])
+                                           .attr("transform", function(d) {
+                                               return "translate(" + d.x + "," + d.y + ")";
+                                            })
+                                           .attr("class", "eventDragbar")
+                                           .attr("width", event.attr("width") - 2 * event.attr("rx"))
+                                           .attr("height", dragbarHeight)
+                                           .attr("cursor", "ns-resize")
+                                           .style("fill", "rgb(130,130,130)")
+                                           .call(d3.drag().on("drag", resizeEvent));
         }
 
 
