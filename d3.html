@@ -65,17 +65,25 @@
                 width  = height * 2;
 
             var dragbarHeight = 20;
+            var minEventHeight = 40;
 
 
             function resizeEvent(d) {
                 var obj = d3.select(this);
                 // d.x += d3.event.dx;
                 d.y += d3.event.dy;
-                // move dragbar
-                obj.attr("transform", "translate(" + d.x + "," + (roundY(d.y) - dragbarHeight) + ")");
 
-                // resize event rect
-                d3.select(".event").attr("height", (roundY(d.y) - d3.select(".event").attr("y")));
+                var newHeight = (roundY(d.y) - d3.select(".event").attr("y"))
+
+                if (newHeight > minEventHeight) {
+                    // move dragbar
+                    obj.attr("transform", "translate(" + d.x + "," + (roundY(d.y) - dragbarHeight) + ")");
+
+                    // resize event rect
+                    d3.select(".event").attr("height", newHeight);
+                } else {
+                    console.log("too little");
+                }
             }
 
             function dragging(d) {
@@ -112,6 +120,13 @@
                                   .attr("ry", "20")
                                   .attr("cursor", "move")
                                   .style("fill", "#666666")
+
+            var eventText = eventGroup.append("text")
+                                       .text("Event name")
+                                      .attr("x", event.attr("width") / 2)
+                                      .attr("y", 30)
+                                      .attr("text-anchor", "middle")
+                                      .attr("font-size", "20px");
 
 
             var dragbarBottom = eventGroup.append("rect")
