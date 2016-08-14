@@ -22,6 +22,8 @@
     <script src="https://d3js.org/d3.v4.min.js"></script>
     <script type="text/javascript">
 
+        var eventCounter = 0;
+
         // "padding" inside the SVG
         var margin = {top: 30, bottom: 30, left: 50, right: 300};
 
@@ -67,22 +69,20 @@
             var dragbarHeight = 20;
             var minEventHeight = 40;
 
-
             function resizeEvent(d) {
                 var obj = d3.select(this);
                 // d.x += d3.event.dx;
                 d.y += d3.event.dy;
+                var selectedEvent = d3.select(".event-group .event-" + d.number)
 
-                var newHeight = (roundY(d.y) - d3.select(".event").attr("y"))
+                var newHeight = (roundY(d.y) - selectedEvent.attr("y"))
 
                 if (newHeight > minEventHeight) {
                     // move dragbar
                     obj.attr("transform", "translate(" + d.x + "," + (roundY(d.y) - dragbarHeight) + ")");
 
                     // resize event rect
-                    d3.select(".event").attr("height", newHeight);
-                } else {
-                    console.log("too little");
+                    selectedEvent.attr("height", newHeight);
                 }
             }
 
@@ -102,7 +102,8 @@
             }
 
             var eventGroup = svg.append("g")
-                                .data([{ x: 0, y: 0}])
+                                .data([{ x: 0, y: 0, number: eventCounter}])
+                                .attr("class", "event event-group event-" + eventCounter)
                                 .attr("transform", function(d) {
                                     return "translate(" + d.x + "," + d.y + ")";
                                 })
@@ -111,7 +112,7 @@
                                                .on("end", dragEnd));
 
             var event = eventGroup.append("rect")
-                                  .attr("class", "event")
+                                  .attr("class", "event event-rect event-" + eventCounter)
                                   .attr("width", height * 2)
                                   .attr("height", height)
                                   .attr("x", 1)
@@ -122,7 +123,8 @@
                                   .style("fill", "#666666")
 
             var eventText = eventGroup.append("text")
-                                       .text("Event name")
+                                       .text("Event #" + eventCounter)
+                                       .attr("class", "event event-text event-" + eventCounter)
                                       .attr("x", event.attr("width") / 2)
                                       .attr("y", 30)
                                       .attr("text-anchor", "middle")
@@ -131,16 +133,19 @@
 
             var dragbarBottom = eventGroup.append("rect")
                                            .data([{ x: event.attr("rx"),
-                                                    y: event.attr("y") + event.attr("height") - dragbarHeight}])
+                                                    y: event.attr("y") + event.attr("height") - dragbarHeight,
+                                                    number: eventCounter}])
                                            .attr("transform", function(d) {
                                                return "translate(" + d.x + "," + d.y + ")";
                                             })
-                                           .attr("class", "eventDragbar")
+                                           .attr("class", "event event-dragbar event-" + eventCounter)
                                            .attr("width", event.attr("width") - 2 * event.attr("rx"))
                                            .attr("height", dragbarHeight)
                                            .attr("cursor", "ns-resize")
                                            .style("fill", "rgb(130,130,130)")
                                            .call(d3.drag().on("drag", resizeEvent));
+
+            eventCounter += 1;
         }
 
 
