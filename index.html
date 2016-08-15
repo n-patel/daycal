@@ -23,11 +23,20 @@
   </head>
 
   <body>
-    <div id="calendar"></div>
-    <div id="sidebar"></div>
+    <div id="calendar">
+        <h2>August 15, 2016</h2>
+        <h3>Monday</h3>
+        <!-- content from javascript calendar -->
+    </div>
+    <div id="sidebar">
+        <h2>Cards from Trello</h2>
+        <ul class="list-group" id="sidebar-list">
+            <!-- content from Trello -->
+        </ul>
+    </div>
 
     <script type="text/template" id="sidebar-template">
-        <p class="task"><%= name %></p>
+        <button type="button" class="list-group-item task" data-id="<%= id %>"><%= name %></p>
     </script>
 
     <script type="text/template" id="event-template">

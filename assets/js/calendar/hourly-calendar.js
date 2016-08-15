@@ -1,7 +1,7 @@
 var eventCounter = 0;
 
 // "padding" inside the SVG
-var margin = {top: 30, bottom: 30, left: 50, right: 300};
+var margin = {top: 30, bottom: 30, left: 50, right: 320};
 
 function roundX(x) {
     return 1;
@@ -127,22 +127,29 @@ var createEvent = function(name, startTime, endTime) {
     eventCounter += 1;
 }
 
-var graphWidth  = window.innerWidth - margin.left - margin.right,
+var graphWidth  = $('body').width() - margin.left - margin.right,
     graphHeight = window.innerHeight - margin.top - margin.bottom;
 
 var svg = d3.select("#calendar").append("svg")
                                   .attr("width", graphWidth + margin.left)
                                   .attr("height", graphHeight + margin.top + margin.bottom)
-                                  .style("border", "2px solid red")
+                                //   .style("border", "2px solid red")
                                 .append("g")
                                   .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
 
-var innerCal = svg.append("rect")
+var calBackground = svg.append("rect")
+                  .attr("class", "calendar-background")
                   .attr("width", graphWidth)
                   .attr("height", graphHeight)
                   .attr("x", 0)
-                  .attr("y", 0)
-                  .style("fill", "#eeeeee");
+                  .attr("y", 0);
+
+// var rightLine = svg.append("line")
+//                    .class("calendar-background-line")
+//                    .attr("x1", calBackground.attr("x"))
+//                    .attr("x2". calBackground.attr("width"))
+//                    .attr("y1", calBackground.attr("y"))
+//                    .attr("y2", calBackground.attr("height"));
 
 var earliestTick = new Time("9:00", 0),
     latestTick   = new Time("2:00", 1);
@@ -153,8 +160,10 @@ var y = d3.scaleTime()
 var yAxis = d3.axisLeft()
               .scale(y)
               .ticks(20)
-              .tickSize(-innerCal.attr("width"));
+              .tickFormat(d3.timeFormat("%_I %p"))
+              .tickSize(-calBackground.attr("width"));
 var yGroup = svg.append("g")
+                .attr("class", "y-axis")
                 .call(yAxis)
 
 // var event = createEvent("none", earliestTick, new Date(2016, 7, 13, 12));

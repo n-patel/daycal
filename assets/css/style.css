@@ -1,9 +1,25 @@
 #sidebar {
-    width: 250px;
-    border: 3px solid green;
+    width: 300px;
+    /*border: 3px solid green;*/
     float: right;
 }
 
 #calendar {
     display: inline-block;
+}
+
+.tick line, .calendar-background-line {
+    stroke: rgb(215, 215, 215);
+}
+
+.domain {
+    display: none; /* hide left stroke */
+}
+
+.calendar-background {
+    fill: rgb(245, 245, 245);
+}
+
+.y-axis text {
+    fill: rgb(192, 192, 192);
 }
