@@ -1,0 +1,9 @@
+#sidebar {
+    width: 250px;
+    border: 3px solid green;
+    float: right;
+}
+
+#calendar {
+    display: inline-block;
+}
