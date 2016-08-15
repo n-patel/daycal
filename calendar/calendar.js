@@ -36,7 +36,7 @@ var roundY = function(y) {
 /**
  * Creates an event box in the calendar.
  */
-var createEvent = function(startTime, endTime, svg) {
+var createEvent = function(name, startTime, endTime) {
     var startY = y(startTime),
         endY   = y(endTime),
         height = Math.abs(startY - endY),
@@ -99,13 +99,12 @@ var createEvent = function(startTime, endTime, svg) {
                           .style("fill", "#666666")
 
     var eventText = eventGroup.append("text")
-                               .text("Event #" + eventCounter)
+                               .text(name)
                                .attr("class", "event event-text event-" + eventCounter)
                               .attr("x", event.attr("width") / 2)
                               .attr("y", 30)
                               .attr("text-anchor", "middle")
-                              .attr("font-size", "20px");
-
+                              .attr("font-size", "14px");
 
     var dragbarBottom = eventGroup.append("rect")
                                    .data([{ x: event.attr("rx"),
@@ -154,4 +153,4 @@ var yAxis = d3.axisLeft()
 var yGroup = svg.append("g")
                 .call(yAxis)
 
-var event = createEvent(earliestTick, new Date(2016, 7, 13, 12), svg);
+var event = createEvent("none", earliestTick, new Date(2016, 7, 13, 12));

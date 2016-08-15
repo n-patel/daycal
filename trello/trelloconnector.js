@@ -2,7 +2,7 @@ var tasksList = new TrelloCal.Collections.Tasks();
 
 var importCards = function(cards) {
     $.each(cards, function(key, value) {
-        tasksList.add( new TrelloCal.Models.Task({ name: value.name }) );
+        tasksList.add( new TrelloCal.Models.Task({ name: value.name, inCalendar: true }) );
     });
 
     new TrelloCal.Views.Tasks({ collection: tasksList });

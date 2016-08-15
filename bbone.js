@@ -11,7 +11,7 @@ TrelloCal.Models.Task = Backbone.Model.extend({
         name: '',
         start: '',
         end: '',
-        listed: true
+        inCalendar: false
     }
 });
 
@@ -23,11 +23,16 @@ TrelloCal.Views.Task = Backbone.View.extend({
     el: '#sidebar',
 
     template: _.template($("#sidebar-template").html()),
+    templateCalendar: _.template($("#event-template").html()),
 
     initialize: function() {},
 
     render: function() {
-        this.$el.append(this.template(this.model.attributes));
+        if (this.model.attributes.inCalendar) {
+            createEvent(this.model.attributes.name, new Date(2016, 7, 13, 9), new Date(2016, 7, 13, 12));
+        } else {
+            this.$el.append(this.template(this.model.attributes));
+        }
         return this;
     }
 });
