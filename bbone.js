@@ -1,7 +1,12 @@
-var Task = Backbone.Model.extend({
-    initialize: function() {
-        console.log("Task was created.");
-    },
+window.TrelloCal = {
+    Models: {},
+    Collections: {},
+    Views: {}
+};
+
+TrelloCal.Models.Task = Backbone.Model.extend({
+    initialize: function() {},
+
     defaults: {
         name: '',
         start: '',
@@ -10,18 +15,16 @@ var Task = Backbone.Model.extend({
     }
 });
 
-var TasksCollection = Backbone.Collection.extend({
-    model: Task
+TrelloCal.Collections.Tasks = Backbone.Collection.extend({
+    model: TrelloCal.Models.Task
 });
 
-var TaskView = Backbone.View.extend({
+TrelloCal.Views.Task = Backbone.View.extend({
     el: '#sidebar',
 
     template: _.template($("#sidebar-template").html()),
 
-    initialize: function() {
-        console.log("loaded");
-    },
+    initialize: function() {},
 
     render: function() {
         this.$el.append(this.template(this.model.attributes));
@@ -29,7 +32,7 @@ var TaskView = Backbone.View.extend({
     }
 });
 
-var TasksView = Backbone.View.extend({
+TrelloCal.Views.Tasks = Backbone.View.extend({
     el: '#sidebar',
 
     collection: null,
@@ -38,9 +41,8 @@ var TasksView = Backbone.View.extend({
         this.collection = options.collection;
 
         this.collection.forEach(function(task) {
-            var taskView = new TaskView({model: task});
+            var taskView = new TrelloCal.Views.Task({model: task});
             taskView.render();
         });
     }
-
 });
