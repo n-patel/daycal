@@ -34,6 +34,15 @@ var roundY = function(y) {
 }
 
 /**
+ * Returns a native Date object from a string of form "HH:mm".
+ * Time "objects" are meant to be relative, therefore the date doesn't matter.
+ */
+function Time(time, dayOffset) {
+    var splitTime = time.split(":");
+    return new Date(2016, 0, 1 + dayOffset, splitTime[0], splitTime[1]);
+}
+
+/**
  * Creates an event box in the calendar.
  */
 var createEvent = function(name, startTime, endTime) {
@@ -46,16 +55,13 @@ var createEvent = function(name, startTime, endTime) {
     var minEventHeight = 40;
 
     function resizeEvent(d) {
-        var obj = d3.select(this);
-        // d.x += d3.event.dx;
         d.y += d3.event.dy;
         var selectedEvent = d3.select(".event-group .event-" + d.number)
 
         var newHeight = (roundY(d.y) - selectedEvent.attr("y"))
-
         if (newHeight > minEventHeight) {
             // move dragbar
-            obj.attr("transform", "translate(" + d.x + "," + (roundY(d.y) - dragbarHeight) + ")");
+            d3.select(this).attr("transform", "translate(" + d.x + "," + (roundY(d.y) - dragbarHeight) + ")");
 
             // resize event rect
             selectedEvent.attr("height", newHeight);
@@ -63,10 +69,8 @@ var createEvent = function(name, startTime, endTime) {
     }
 
     function dragging(d) {
-        var obj = d3.select(this);
-        // d.x += d3.event.dx;
         d.y += d3.event.dy;
-        obj.attr("transform", "translate(" + d.x + "," + roundY(d.y) + ")")
+        d3.select(this).attr("transform", "translate(" + d.x + "," + roundY(d.y) + ")")
     }
 
     function dragStart() {
@@ -127,11 +131,11 @@ var graphWidth  = window.innerWidth - margin.left - margin.right,
     graphHeight = window.innerHeight - margin.top - margin.bottom;
 
 var svg = d3.select("#calendar").append("svg")
-                               .attr("width", graphWidth + margin.left)
-                               .attr("height", graphHeight + margin.top + margin.bottom)
-                               .style("border", "2px solid red")
-                            .append("g")
-                               .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
+                                  .attr("width", graphWidth + margin.left)
+                                  .attr("height", graphHeight + margin.top + margin.bottom)
+                                  .style("border", "2px solid red")
+                                .append("g")
+                                  .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
 
 var innerCal = svg.append("rect")
                   .attr("width", graphWidth)
@@ -140,17 +144,17 @@ var innerCal = svg.append("rect")
                   .attr("y", 0)
                   .style("fill", "#eeeeee");
 
-var earliestTick = new Date(2016, 7, 13, 9),
-    latestTick   = new Date(2016, 7, 14, 2);
+var earliestTick = new Time("9:00", 0),
+    latestTick   = new Time("2:00", 1);
 
 var y = d3.scaleTime()
           .domain([earliestTick, latestTick])
           .range([0, graphHeight]);
 var yAxis = d3.axisLeft()
-          .scale(y)
-          .ticks(20)
-          .tickSize(-innerCal.attr("width"));
+              .scale(y)
+              .ticks(20)
+              .tickSize(-innerCal.attr("width"));
 var yGroup = svg.append("g")
                 .call(yAxis)
 
-var event = createEvent("none", earliestTick, new Date(2016, 7, 13, 12));
+// var event = createEvent("none", earliestTick, new Date(2016, 7, 13, 12));

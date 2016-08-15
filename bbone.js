@@ -29,7 +29,7 @@ TrelloCal.Views.Task = Backbone.View.extend({
 
     render: function() {
         if (this.model.attributes.inCalendar) {
-            createEvent(this.model.attributes.name, new Date(2016, 7, 13, 9), new Date(2016, 7, 13, 12));
+            createEvent(this.model.attributes.name, new Time("9:00", 0), new Time("11:00", 0));
         } else {
             this.$el.append(this.template(this.model.attributes));
         }
