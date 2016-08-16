@@ -4,6 +4,7 @@ TrelloCal.Models.Task = Backbone.Model.extend({
     defaults: {
         name: '',
         id: '',
+        events: 0,
     }
 });
 
@@ -35,10 +36,13 @@ TrelloCal.Views.Tasks = Backbone.View.extend({
 
     clicked: function(e) {
         e.preventDefault();
-        var id = $(e.currentTarget).data("id");
+        var id   = $(e.currentTarget).data("id");
         var task = this.collection.get(id);
         var name = task.get("name");
-        var newEvent = new TrelloCal.Models.Event({name: name, task: task});
+        var newEvent = new TrelloCal.Models.Event({name: name,
+                                                   task: task,
+                                                   sibling: task.get("events") });
+        task.set("events", task.get("events") + 1);
         window.events.add(newEvent);
     },
 

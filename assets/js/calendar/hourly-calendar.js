@@ -1,5 +1,3 @@
-var eventCounter = 0;
-
 // "padding" inside the SVG
 var margin = {top: 30, bottom: 30, left: 50, right: 320};
 
@@ -62,7 +60,7 @@ function Time(time, dayOffset) {
 /**
  * Creates an event box in the calendar.
  */
-var createEvent = function(name, startTime, endTime) {
+var createEvent = function(name, startTime, endTime, id) {
     var startY = y(startTime),
         endY   = y(endTime),
         height = Math.abs(startY - endY),
@@ -74,7 +72,7 @@ var createEvent = function(name, startTime, endTime) {
 
     function resizeEvent(d) {
         d.y += d3.event.dy;
-        var selectedEvent = d3.select(".event-group .event-" + d.number)
+        var selectedEvent = d3.select(".event-group .event-" + d.id)
 
         var newHeight = (roundY(d.y) - selectedEvent.attr("y"))
         if (newHeight > minEventHeight) {
@@ -100,21 +98,22 @@ var createEvent = function(name, startTime, endTime) {
     }
 
     var eventGroup = svg.append("g")
-                        .data([{ x: 0, y: 0, number: eventCounter}])
-                        .attr("class", "event event-group event-" + eventCounter)
+                        .data([{ x: 0, y: 0, id: id}])
+                        .attr("class", "event event-group event-" + id)
                         .attr("transform", function(d) {
                             return "translate(" + d.x + "," + d.y + ")";
                         })
                         .call(d3.drag().on("start", dragStart)
                                        .on("drag", dragging)
                                        .on("end", dragEnd))
-                        .on("contextmenu", function() {
-                            d3.event.preventDefault();
-                            d3.select(this).remove();
-                        });
+                        // .on("contextmenu", function() {
+                        //     d3.event.preventDefault();
+                        //     d3.select(this).remove();
+                        // });
+                        // TODO: uncomment this after testing.
 
     var event = eventGroup.append("rect")
-                          .attr("class", "event event-rect event-" + eventCounter)
+                          .attr("class", "event event-rect event-" + id)
                           .attr("width", height * 2)
                           .attr("height", height - spacing)  /* add spacing between */
                           .attr("y", startY + spacing)       /* consecutive events. */
@@ -126,26 +125,25 @@ var createEvent = function(name, startTime, endTime) {
 
     var eventText = eventGroup.append("text")
                                .text(name)
-                               .attr("class", "event event-text event-" + eventCounter)
-                              .attr("x", event.attr("width") / 2)
-                              .attr("y", 30)
-                              .attr("text-anchor", "middle")
-                              .attr("font-size", "14px");
+                               .attr("class", "event event-text event-" + id)
+                               .attr("x", event.attr("width") / 2)
+                               .attr("y", 30)
+                               .attr("text-anchor", "middle")
+                               .attr("font-size", "14px");
 
     var dragbarBottom = eventGroup.append("rect")
                                    .data([{ x: event.attr("rx"),
                                             y: event.attr("height") - dragbarHeight + spacing,
-                                            number: eventCounter}])
+                                            id: id}])
                                    .attr("transform", function(d) {
                                        return "translate(" + d.x + "," + d.y + ")";
                                     })
-                                   .attr("class", "event event-dragbar event-" + eventCounter)
+                                   .attr("class", "event event-dragbar event-" + id)
                                    .attr("width", event.attr("width") - 2 * event.attr("rx"))
                                    .attr("height", dragbarHeight)
                                    .attr("cursor", "ns-resize")
                                    .call(d3.drag().on("drag", resizeEvent));
 
-    eventCounter += 1;
 }
 
 var graphWidth  = $('body').width() - margin.left - margin.right,
@@ -154,7 +152,6 @@ var graphWidth  = $('body').width() - margin.left - margin.right,
 var svg = d3.select("#calendar").append("svg")
                                   .attr("width", graphWidth + margin.left)
                                   .attr("height", graphHeight + margin.top + margin.bottom)
-                                //   .style("border", "2px solid red")
                                 .append("g")
                                   .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
 
