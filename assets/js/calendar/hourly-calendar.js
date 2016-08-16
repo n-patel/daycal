@@ -106,7 +106,11 @@ var createEvent = function(name, startTime, endTime) {
                         })
                         .call(d3.drag().on("start", dragStart)
                                        .on("drag", dragging)
-                                       .on("end", dragEnd));
+                                       .on("end", dragEnd))
+                        .attr("oncontextmenu", "return false;")     // disable right-click menu
+                        .on("contextmenu", function() {
+                            d3.select(this).remove();
+                        })
 
     var event = eventGroup.append("rect")
                           .attr("class", "event event-rect event-" + eventCounter)

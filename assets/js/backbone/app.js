@@ -24,7 +24,6 @@ TrelloCal.Views.Task = Backbone.View.extend({
     el: '#sidebar-list',
 
     template: _.template($("#sidebar-template").html()),
-    templateCalendar: _.template($("#event-template").html()),
 
     initialize: function() {},
 
@@ -52,8 +51,8 @@ TrelloCal.Views.Tasks = Backbone.View.extend({
         var id = $(e.currentTarget).data("id");
         var task = this.collection.get(id);
         var name = task.get("name");
-        createEvent(name, new Time("9:00", 0), new Time("11:00", 0));
-        task.inCalendar = true;
+        task.attributes.inCalendar = true;
+        (new TrelloCal.Views.Task({model: task})).render();
     },
 
     initialize: function(options) {
