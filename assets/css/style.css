@@ -23,3 +23,13 @@
 .y-axis text {
     fill: rgb(192, 192, 192);
 }
+
+rect.event-rect {
+    fill: rgb(60, 179, 242);
+    /*opacity: 0.1;*/
+}
+
+
+.event-dragbar {
+    opacity: 0;
+}

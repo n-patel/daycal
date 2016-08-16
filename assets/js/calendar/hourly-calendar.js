@@ -3,6 +3,30 @@ var eventCounter = 0;
 // "padding" inside the SVG
 var margin = {top: 30, bottom: 30, left: 50, right: 320};
 
+/**
+ * Returns an array containing the Dates for each tick mark.
+ * Can be associated with the array from getTickPositions().
+ */
+var getTickTimes = function() {
+    return y.ticks();
+}
+
+/* Returns an array containing the y-coordinates for each tick mark.
+ * Can be associated with the array from getTickTimes().
+ */
+var getTickPositions = function() {
+    function getYFromTranslate(translate) {
+        return translate.replace(/translate\([0-9]+,/, '').replace(')', '');
+    }
+
+    var tickPositions = [];
+    var ticks = d3.selectAll(".tick").each(function() {
+        tickPositions.push(getYFromTranslate(d3.select(this).attr("transform")));
+    });
+
+    return tickPositions;
+}
+
 function roundX(x) {
     return 1;
 }
@@ -11,14 +35,7 @@ function roundX(x) {
  * Takes a y and rounds it to the y value of the nearest hour.
  */
 var roundY = function(y) {
-    function getYFromTranslate(translate) {
-        return translate.replace(/translate\([0-9]+,/, '').replace(')', '');
-    }
-
-    var validYs = [];
-    var ticks = d3.selectAll(".tick").each(function() {
-        validYs.push(getYFromTranslate(d3.select(this).attr("transform")));
-    });
+    var validYs = getTickPositions();
 
     function getClosest() {
         var closest = validYs[0];
@@ -27,7 +44,7 @@ var roundY = function(y) {
                 closest = validYs[i];
             }
         }
-        return closest
+        return closest;
     }
 
     return getClosest();
@@ -74,11 +91,11 @@ var createEvent = function(name, startTime, endTime) {
     }
 
     function dragStart() {
-        d3.select(this).attr("opacity", "0.7");
+        d3.select(this).select(".event-rect").attr("opacity", "1.0");
     }
 
     function dragEnd() {
-        d3.select(this).attr("opacity", "1.0");
+        d3.select(this).select(".event-rect").attr("opacity", "0.4");
     }
 
     var eventGroup = svg.append("g")
@@ -95,12 +112,12 @@ var createEvent = function(name, startTime, endTime) {
                           .attr("class", "event event-rect event-" + eventCounter)
                           .attr("width", height * 2)
                           .attr("height", height)
-                          .attr("x", 1)
+                          .attr("x", 0)
                           .attr("y", startY)
-                          .attr("rx", "20")
-                          .attr("ry", "20")
+                          .attr("rx", "0")
+                          .attr("ry", "0")
                           .attr("cursor", "move")
-                          .style("fill", "#666666")
+                          .attr("opacity", "0.4");
 
     var eventText = eventGroup.append("text")
                                .text(name)
@@ -121,7 +138,6 @@ var createEvent = function(name, startTime, endTime) {
                                    .attr("width", event.attr("width") - 2 * event.attr("rx"))
                                    .attr("height", dragbarHeight)
                                    .attr("cursor", "ns-resize")
-                                   .style("fill", "rgb(130,130,130)")
                                    .call(d3.drag().on("drag", resizeEvent));
 
     eventCounter += 1;
