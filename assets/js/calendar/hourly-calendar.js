@@ -66,7 +66,8 @@ var createEvent = function(name, startTime, endTime) {
     var startY = y(startTime),
         endY   = y(endTime),
         height = Math.abs(startY - endY),
-        width  = height * 2;
+        width  = height * 2
+        spacing = 2;
 
     var dragbarHeight = 20;
     var minEventHeight = 40;
@@ -110,14 +111,14 @@ var createEvent = function(name, startTime, endTime) {
                         .attr("oncontextmenu", "return false;")     // disable right-click menu
                         .on("contextmenu", function() {
                             d3.select(this).remove();
-                        })
+                        });
 
     var event = eventGroup.append("rect")
                           .attr("class", "event event-rect event-" + eventCounter)
                           .attr("width", height * 2)
-                          .attr("height", height)
+                          .attr("height", height - spacing)  /* add spacing between */
+                          .attr("y", startY + spacing)       /* consecutive events. */
                           .attr("x", 0)
-                          .attr("y", startY)
                           .attr("rx", "0")
                           .attr("ry", "0")
                           .attr("cursor", "move")
@@ -133,7 +134,7 @@ var createEvent = function(name, startTime, endTime) {
 
     var dragbarBottom = eventGroup.append("rect")
                                    .data([{ x: event.attr("rx"),
-                                            y: event.attr("y") + event.attr("height") - dragbarHeight,
+                                            y: event.attr("height") - dragbarHeight + spacing,
                                             number: eventCounter}])
                                    .attr("transform", function(d) {
                                        return "translate(" + d.x + "," + d.y + ")";
