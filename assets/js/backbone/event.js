@@ -3,13 +3,15 @@ TrelloCal.Models.Event = Backbone.Model.extend({
         this.set('uid', options.task.attributes.id + "_" + options.sibling);
     },
 
+    idAttribute: 'uid',
+
     defaults: {
         name: '',
         task: '',
         sibling: 0,     // how many events of this task already exist
-        uid: '',        // computed id: task_sibling
-        start: '',
-        end: '',
+        uid: '',        // computed id: {task}_{sibling}
+        start: new Time("9:00", 0),
+        end: new Time("11:00", 0),
     }
 });
 
@@ -22,8 +24,8 @@ TrelloCal.Collections.Events = Backbone.Collection.extend({
 TrelloCal.Views.Event = Backbone.View.extend({
     render: function() {
         createEvent(this.model.attributes.name,
-                    new Time("9:00", 0),
-                    new Time("11:00", 0),
+                    this.model.attributes.start,
+                    this.model.attributes.end,
                     this.model.attributes.uid);
     },
 });

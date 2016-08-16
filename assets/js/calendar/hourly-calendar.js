@@ -1,3 +1,9 @@
+// Calendar-Event Connector: connects hourly-calendar with Backbone event.js.
+var updateEventTimes = function(uid, startTime, endTime) {
+    window.events.get(uid).set({ start: startTime,
+                                   end: endTime  });
+}
+
 // "padding" inside the SVG
 var margin = {top: 30, bottom: 30, left: 50, right: 320};
 
@@ -9,13 +15,14 @@ var getTickTimes = function() {
     return y.ticks();
 }
 
+function getYFromTranslate(translate) {
+    return parseFloat(translate.replace(/translate\([0-9]+,/, '').replace(')', ''));
+}
+
 /* Returns an array containing the y-coordinates for each tick mark.
  * Can be associated with the array from getTickTimes().
  */
 var getTickPositions = function() {
-    function getYFromTranslate(translate) {
-        return translate.replace(/translate\([0-9]+,/, '').replace(')', '');
-    }
 
     var tickPositions = [];
     var ticks = d3.selectAll(".tick").each(function() {
@@ -29,23 +36,28 @@ function roundX(x) {
     return 1;
 }
 
+
+/**
+ * Returns
+ */
+function getClosest(value, array) {
+    var closest = array[0];
+    var closestIndex = 0;
+    for (i = 1; i < array.length; i++) {
+        if (Math.abs(array[i] - value) < Math.abs(closest - value)) {
+            closest = array[i];
+            closestIndex = i;
+        }
+    }
+    return [closest, closestIndex];
+}
+
 /**
  * Takes a y and rounds it to the y value of the nearest hour.
  */
 var roundY = function(y) {
     var validYs = getTickPositions();
-
-    function getClosest() {
-        var closest = validYs[0];
-        for (i = 1; i < validYs.length; i++) {
-            if (Math.abs(validYs[i] - y) < Math.abs(closest - y)) {
-                closest = validYs[i];
-            }
-        }
-        return closest;
-    }
-
-    return getClosest();
+    return getClosest(y, validYs)[0];
 }
 
 /**
@@ -57,10 +69,15 @@ function Time(time, dayOffset) {
     return new Date(2016, 0, 1 + dayOffset, splitTime[0], splitTime[1]);
 }
 
+function getTimeFromY(y) {
+    var i = getClosest(y, getTickPositions())[1];
+    return getTickTimes()[i];
+}
+
 /**
  * Creates an event box in the calendar.
  */
-var createEvent = function(name, startTime, endTime, id) {
+var createEvent = function(name, startTime, endTime, uid) {
     var startY = y(startTime),
         endY   = y(endTime),
         height = Math.abs(startY - endY),
@@ -72,7 +89,8 @@ var createEvent = function(name, startTime, endTime, id) {
 
     function resizeEvent(d) {
         d.y += d3.event.dy;
-        var selectedEvent = d3.select(".event-group .event-" + d.id)
+        var selectedEventGroup = d3.select("g.event-group.event-" + d.uid);
+        var selectedEvent = d3.select(".event-rect.event-" + d.uid);
 
         var newHeight = (roundY(d.y) - selectedEvent.attr("y"))
         if (newHeight > minEventHeight) {
@@ -81,12 +99,22 @@ var createEvent = function(name, startTime, endTime, id) {
 
             // resize event rect
             selectedEvent.attr("height", newHeight);
+            // console.log(selectedEvent);
+
+            var startY = getYFromTranslate(selectedEventGroup.attr("transform"));
+            var endY   = startY + parseFloat(selectedEvent.attr("height"));
+            updateEventTimes(d.uid, getTimeFromY(startY), getTimeFromY(endY));
         }
+
     }
 
     function dragging(d) {
         d.y += d3.event.dy;
-        d3.select(this).attr("transform", "translate(" + d.x + "," + roundY(d.y) + ")")
+        d3.select(this).attr("transform", "translate(" + d.x + "," + roundY(d.y) + ")");
+
+        var startY = getYFromTranslate(d3.select(this).attr("transform"));
+        var endY   = startY + parseFloat(d3.select(this).select(".event-rect").attr("height"));
+        updateEventTimes(d.uid, getTimeFromY(startY), getTimeFromY(endY));
     }
 
     function dragStart() {
@@ -98,8 +126,8 @@ var createEvent = function(name, startTime, endTime, id) {
     }
 
     var eventGroup = svg.append("g")
-                        .data([{ x: 0, y: 0, id: id}])
-                        .attr("class", "event event-group event-" + id)
+                        .data([{ x: 0, y: 0, uid: uid}])
+                        .attr("class", "event event-group event-" + uid)
                         .attr("transform", function(d) {
                             return "translate(" + d.x + "," + d.y + ")";
                         })
@@ -113,7 +141,7 @@ var createEvent = function(name, startTime, endTime, id) {
                         // TODO: uncomment this after testing.
 
     var event = eventGroup.append("rect")
-                          .attr("class", "event event-rect event-" + id)
+                          .attr("class", "event event-rect event-" + uid)
                           .attr("width", height * 2)
                           .attr("height", height - spacing)  /* add spacing between */
                           .attr("y", startY + spacing)       /* consecutive events. */
@@ -125,7 +153,7 @@ var createEvent = function(name, startTime, endTime, id) {
 
     var eventText = eventGroup.append("text")
                                .text(name)
-                               .attr("class", "event event-text event-" + id)
+                               .attr("class", "event event-text event-" + uid)
                                .attr("x", event.attr("width") / 2)
                                .attr("y", 30)
                                .attr("text-anchor", "middle")
@@ -134,11 +162,11 @@ var createEvent = function(name, startTime, endTime, id) {
     var dragbarBottom = eventGroup.append("rect")
                                    .data([{ x: event.attr("rx"),
                                             y: event.attr("height") - dragbarHeight + spacing,
-                                            id: id}])
+                                            uid: uid}])
                                    .attr("transform", function(d) {
                                        return "translate(" + d.x + "," + d.y + ")";
                                     })
-                                   .attr("class", "event event-dragbar event-" + id)
+                                   .attr("class", "event event-dragbar event-" + uid)
                                    .attr("width", event.attr("width") - 2 * event.attr("rx"))
                                    .attr("height", dragbarHeight)
                                    .attr("cursor", "ns-resize")
