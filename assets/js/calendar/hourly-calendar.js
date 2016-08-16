@@ -108,8 +108,8 @@ var createEvent = function(name, startTime, endTime) {
                         .call(d3.drag().on("start", dragStart)
                                        .on("drag", dragging)
                                        .on("end", dragEnd))
-                        .attr("oncontextmenu", "return false;")     // disable right-click menu
                         .on("contextmenu", function() {
+                            d3.event.preventDefault();
                             d3.select(this).remove();
                         });
 
@@ -188,3 +188,7 @@ var yGroup = svg.append("g")
                 .call(yAxis)
 
 // var event = createEvent("none", earliestTick, new Date(2016, 7, 13, 12));
+
+var getEventTimes = function(event) {
+    console.log(event);
+}
