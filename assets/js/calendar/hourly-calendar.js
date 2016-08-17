@@ -1,7 +1,59 @@
+/**
+ * Time objects are meant to be relative, therefore the date doesn't matter.
+ * DO NOT use array access notation (i.e., ["hour"] or ["minute"]). Instead,
+ * use the provided getters.
+ */
+function Time(time, dayOffset) {
+    var splitTime = time.split(":");
+    this.hour = splitTime[0];
+    this.minute = splitTime[1];
+
+    this.getHour = function() {
+        var hr = parseFloat(this.hour) % 12;
+        if (hr == 0) {
+            return "12";
+        } else {
+            return "" + hr;
+        }
+    };
+    this.getMinute = function() {
+        if (this.minute == "0") {
+            return "00";
+        } else {
+            return this.minute;
+        };
+    };
+    this.getTimeString = function() {
+        return this.getHour() + ":" + this.getMinute();
+    }
+    this.getDateObject = function() {
+        return new Date(2016, 0, 1 + dayOffset, this.hour, this.minute);
+    };
+    return this;
+}
+
+function getTimeFromDate(date) {
+    return new Time(date.getHours() + ":" + date.getMinutes(), 0);
+}
+
+
 // Calendar-Event Connector: connects hourly-calendar with Backbone event.js.
 var updateEventTimes = function(uid, startTime, endTime) {
     window.events.get(uid).set({ start: startTime,
                                    end: endTime  });
+}
+
+var getEvent = function(uid) {
+    return window.events.get(uid);
+}
+
+var getEventTimes = function(uid) {
+    return {start: window.events.get(uid).attributes.start,
+            end:   window.events.get(uid).attributes.end };
+}
+
+var getEventTimesString = function(uid) {
+    return getEventTimes(uid).start.getTimeString() + " - " + getEventTimes(uid).end.getTimeString()
 }
 
 // "padding" inside the SVG
@@ -65,16 +117,9 @@ var roundY = function(y) {
     return getClosest(y, validYPositions)[0];
 }
 
-/**
- * Returns a native Date object from a string of form "HH:mm".
- * Time "objects" are meant to be relative, therefore the date doesn't matter.
- */
-function Time(time, dayOffset) {
-    var splitTime = time.split(":");
-    return new Date(2016, 0, 1 + dayOffset, splitTime[0], splitTime[1]);
-}
 
-function getTimeFromY(value) {
+
+function getDateFromY(value) {
     return yScale.invert(value);
 }
 
@@ -82,14 +127,14 @@ function getTimeFromY(value) {
  * Creates an event box in the calendar.
  */
 var createEvent = function(name, startTime, endTime, uid) {
-    var startY = yScale(startTime),
-        endY   = yScale(endTime),
+    var startY = yScale(startTime.getDateObject()),
+        endY   = yScale(endTime.getDateObject()),
         height = Math.abs(startY - endY),
         width  = height * 2
         spacing = 2;
 
     var dragbarHeight = 10;
-    var minEventHeight = yScale(new Time("9:15", 0)) - yScale(new Time("9:00", 0));
+    var minEventHeight = yScale(new Time("9:15", 0).getDateObject()) - yScale(new Time("9:00", 0).getDateObject());
     console.log(minEventHeight);
 
     function resizeEvent(d) {
@@ -108,7 +153,10 @@ var createEvent = function(name, startTime, endTime, uid) {
 
             var startY = getYFromTranslate(selectedEventGroup.attr("transform"));
             var endY   = startY + parseFloat(selectedEvent.attr("height"));
-            updateEventTimes(d.uid, getTimeFromY(startY), getTimeFromY(endY + spacing));
+            updateEventTimes(d.uid,
+                             getTimeFromDate(getDateFromY(startY)),
+                             getTimeFromDate(getDateFromY(endY + spacing)));
+            selectedEventGroup.select("text").text(getEventTimesString(d.uid));
         }
 
     }
@@ -119,7 +167,10 @@ var createEvent = function(name, startTime, endTime, uid) {
 
         var startY = getYFromTranslate(d3.select(this).attr("transform"));
         var endY   = startY + parseFloat(d3.select(this).select(".event-rect").attr("height"));
-        updateEventTimes(d.uid, getTimeFromY(startY), getTimeFromY(endY + spacing));
+        updateEventTimes(d.uid,
+                         getTimeFromDate(getDateFromY(startY)),
+                         getTimeFromDate(getDateFromY(endY + spacing)));
+        d3.select(this).select("text").text(getEventTimesString(d.uid));
     }
 
     function dragStart() {
@@ -147,7 +198,7 @@ var createEvent = function(name, startTime, endTime, uid) {
 
     var event = eventGroup.append("rect")
                           .attr("class", "event event-rect event-" + uid)
-                          .attr("width", height * 2)
+                          .attr("width", calBackground.attr("width"))
                           .attr("height", height - spacing)  /* add spacing between */
                           .attr("y", startY + spacing)       /* consecutive events. */
                           .attr("x", 0)
@@ -156,13 +207,17 @@ var createEvent = function(name, startTime, endTime, uid) {
                           .attr("cursor", "move")
                           .attr("opacity", "0.4");
 
+    var eventTimeText = eventGroup.append("text")
+                                  .text(startTime.getTimeString() + " - " + endTime.getTimeString());
+
     var eventNameText = eventGroup.append("text")
                                   .text(name)
                                   .attr("class", "event event-text event-" + uid)
-                                  .attr("x", event.attr("width") / 2)
-                                  .attr("y", 30)
-                                  .attr("text-anchor", "middle")
+                                  .attr("x", 10)
+                                  .attr("y", 20)
+                                  .attr("text-anchor", "left")
                                   .attr("font-size", "14px");
+        // console.log(d3.select(".event-group text").getComputedTextLength());
 
     var dragbarBottom = eventGroup.append("rect")
                                    .data([{ x: event.attr("rx"),
@@ -180,7 +235,7 @@ var createEvent = function(name, startTime, endTime, uid) {
 }
 
 var graphWidth  = $('#calendar').width() - margin.left - margin.right,
-    graphHeight = (window.innerHeight * 1.5) - margin.top - margin.bottom;
+    graphHeight = (window.innerHeight * 2) - margin.top - margin.bottom;
 
 var svg = d3.select("#calendar").append("svg")
                                   .attr("width", graphWidth + margin.left)
@@ -202,8 +257,8 @@ var calBackground = svg.append("rect")
 //                    .attr("y1", calBackground.attr("y"))
 //                    .attr("y2", calBackground.attr("height"));
 
-var earliestTick = new Time("9:00", 0),
-    latestTick   = new Time("2:00", 1);
+var earliestTick = new Time("9:00", 0).getDateObject(),
+    latestTick   = new Time("2:00", 1).getDateObject();
 
 var yScale = d3.scaleTime()
                .domain([earliestTick, latestTick])
