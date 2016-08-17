@@ -134,7 +134,7 @@ var createEvent = function(name, startTime, endTime, uid) {
         spacing = 2;
 
     var dragbarHeight = 10;
-    var minEventHeight = yScale(new Time("9:15", 0).getDateObject()) - yScale(new Time("9:00", 0).getDateObject());
+    var minEventHeight = 0;//yScale(new Time("9:15", 0).getDateObject()) - yScale(new Time("9:00", 0).getDateObject());
     console.log(minEventHeight);
 
     function resizeEvent(d) {
@@ -143,20 +143,32 @@ var createEvent = function(name, startTime, endTime, uid) {
         var selectedEvent = d3.select(".event-rect.event-" + d.uid);
 
         var newHeight = (roundY(d.y) - selectedEvent.attr("y"))
-        if (newHeight > minEventHeight) {
+        if (newHeight >= minEventHeight) {
             // move dragbar
             d3.select(this).attr("transform", "translate(" + d.x + "," + (roundY(d.y) - dragbarHeight) + ")");
 
             // resize event rect
             selectedEvent.attr("height", newHeight);
-            // console.log(selectedEvent);
 
+            // update event model
             var startY = getYFromTranslate(selectedEventGroup.attr("transform"));
             var endY   = startY + parseFloat(selectedEvent.attr("height"));
             updateEventTimes(d.uid,
                              getTimeFromDate(getDateFromY(startY)),
                              getTimeFromDate(getDateFromY(endY + spacing)));
+
+            // update time listing
             selectedEventGroup.select("text").text(getEventTimesString(d.uid));
+
+            // move text if box becomes too small/large enough to accommodate.
+            var rectBBox = parseFloat(selectedEventGroup.select("rect.event-rect").attr("height"));
+            var textBBox = parseFloat(selectedEventGroup.select("text").attr("y"));
+
+            if (textBBox > rectBBox) {
+                selectedEventGroup.selectAll("text").attr("y", selectedEventGroup.select("text").node().getBBox().height);
+            } else {
+                selectedEventGroup.selectAll("text").attr("y", selectedEventGroup.select("text").node().getBBox().height + eventPadding.top);
+            }
         }
 
     }
@@ -165,11 +177,14 @@ var createEvent = function(name, startTime, endTime, uid) {
         d.y += d3.event.dy;
         d3.select(this).attr("transform", "translate(" + d.x + "," + roundY(d.y) + ")");
 
+        // update event model
         var startY = getYFromTranslate(d3.select(this).attr("transform"));
         var endY   = startY + parseFloat(d3.select(this).select(".event-rect").attr("height"));
         updateEventTimes(d.uid,
                          getTimeFromDate(getDateFromY(startY)),
                          getTimeFromDate(getDateFromY(endY + spacing)));
+
+        // update time listing
         d3.select(this).select("text").text(getEventTimesString(d.uid));
     }
 
@@ -180,6 +195,8 @@ var createEvent = function(name, startTime, endTime, uid) {
     function dragEnd() {
         d3.select(this).select(".event-rect").attr("opacity", "0.4");
     }
+
+    var eventPadding = {top: 5, bottom: 20, left: 10, right: 10};
 
     var eventGroup = svg.append("g")
                         .data([{ x: 0, y: 0, uid: uid}])
@@ -208,16 +225,18 @@ var createEvent = function(name, startTime, endTime, uid) {
                           .attr("opacity", "0.4");
 
     var eventTimeText = eventGroup.append("text")
-                                  .text(startTime.getTimeString() + " - " + endTime.getTimeString());
+                                  .text(getEventTimesString(uid))
+                                  .attr("class", "event event-text event-text-time event-" + uid)
+                                  .attr("text-anchor", "end")
+                                  .attr("x", event.attr("width") - eventPadding.left);
+                     eventTimeText.attr("y", eventTimeText.node().getBBox().height + eventPadding.top);
 
     var eventNameText = eventGroup.append("text")
                                   .text(name)
-                                  .attr("class", "event event-text event-" + uid)
-                                  .attr("x", 10)
-                                  .attr("y", 20)
-                                  .attr("text-anchor", "left")
-                                  .attr("font-size", "14px");
-        // console.log(d3.select(".event-group text").getComputedTextLength());
+                                  .attr("class", "event event-text event-text-name event-" + uid)
+                                  .attr("text-anchor", "start")
+                                  .attr("x", eventPadding.right);
+                     eventNameText.attr("y", eventNameText.node().getBBox().height + eventPadding.top);
 
     var dragbarBottom = eventGroup.append("rect")
                                    .data([{ x: event.attr("rx"),
