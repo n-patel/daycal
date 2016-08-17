@@ -1,6 +1,10 @@
+(function() {
 var tasksList = new TrelloCal.Collections.Tasks();
 var tasksListView;
 
+/**
+ * Import cards into backbone model.
+ */
 var importCards = function(cards) {
     $.each(cards, function(key, value) {
         tasksList.add(new TrelloCal.Models.Task({ name: value.name,
@@ -9,17 +13,25 @@ var importCards = function(cards) {
 
     tasksListView = new TrelloCal.Views.Tasks({ collection: tasksList });
     tasksListView.render();
-}
+};
 
+
+/**
+ * Load cards from the given list id.
+ * TODO: make list id a method argument.
+ */
 var loadCards = function() {
     var myList = "55dbffbe1ddddab4372dbc3c";
     var response = Trello.get('/lists/' + myList + '/cards',
                               importCards,
                               function() { console.log("Failed to load cards."); });
-}
+};
 
 
-function authWithTrello() {
+/**
+ * Authenticate with Trello using its API.
+ */
+var authWithTrello = function() {
 
     var authenticationFailure = function() { console.log('Failed authentication'); };
 
@@ -33,4 +45,7 @@ function authWithTrello() {
         success: loadCards,
         error: authenticationFailure
     });
-}
+};
+window.authWithTrello = authWithTrello;
+
+})();

@@ -1,3 +1,4 @@
+(function() {
 /**
  * Return the event model with the given uid.
  */
@@ -61,6 +62,7 @@ var populateValidYPositions = function() {
 
     var tickDeltaY = tickYs[1] - tickYs[0];
     var validYs = [];
+    var i, j;
     for (i = 0; i < tickYs.length; i++) {
         var offset = tickDeltaY / 4;
         for (j = 0; j < 4; j++) {
@@ -85,6 +87,7 @@ var getClosest = function(value, array) {
     }
     return [closest, closestIndex];
 };
+
 
 /**
  * Takes a y and rounds it to the y value of the nearest valid position.
@@ -238,6 +241,7 @@ var createEvent = function(name, startTime, endTime, uid) {
                                    .attr("cursor", "ns-resize")
                                    .call(d3.drag().on("drag", resizeEvent));
 };
+window.createEvent = createEvent;
 
 
 /**
@@ -280,3 +284,4 @@ var yGroup = svg.append("g")
                 .call(yAxis);
 
 validYPositions = populateValidYPositions();
+})();

@@ -1,4 +1,4 @@
-// Namespace
+// Global app namespace
 window.TrelloCal = {
     Models: {},
     Collections: {},
