@@ -3,7 +3,7 @@
  */
 var getEvent = function(uid) {
     return window.events.get(uid);
-}
+};
 
 
 /**
@@ -11,7 +11,7 @@ var getEvent = function(uid) {
  */
 var destroyEvent = function(uid) {
     window.events.remove(getEvent(uid));
-}
+};
 
 
 /**
@@ -20,7 +20,7 @@ var destroyEvent = function(uid) {
 var updateEventTimes = function(uid, startTime, endTime) {
     getEvent(uid).set({ start: startTime,
                         end:   endTime  });
-}
+};
 
 
 /**
@@ -29,7 +29,7 @@ var updateEventTimes = function(uid, startTime, endTime) {
 var getEventTimes = function(uid) {
     return {start: getEvent(uid).attributes.start,
             end:   getEvent(uid).attributes.end };
-}
+};
 
 
 /**
@@ -37,27 +37,22 @@ var getEventTimes = function(uid) {
  */
 var getEventTimesString = function(uid) {
     return getEventTimes(uid).start.getTimeString() + " - " + getEventTimes(uid).end.getTimeString()
-}
+};
 
 
+/**
+ * Return the y-value from the transform SVG attribute.
+ */
+var getYFromTranslate = function(translate) {
+    return parseFloat(translate.replace(/translate\([0-9]+,/, '').replace(')', ''));
+};
 
-// "padding" inside the SVG
-var margin = {top: 30, bottom: 30, left: 50, right: 30};
 
 var validYPositions = [];
 
 /**
- * Returns an array containing the Dates for each tick mark.
- * Can be associated with the array from getTickPositions().
+ * Populate the validYPositions array with... well, the valid y positions.
  */
-var getTickTimes = function() {
-    return y.ticks();
-}
-
-function getYFromTranslate(translate) {
-    return parseFloat(translate.replace(/translate\([0-9]+,/, '').replace(')', ''));
-}
-
 var populateValidYPositions = function() {
     var tickYs = [];
     var ticks = d3.selectAll(".tick").each(function() {
@@ -73,18 +68,13 @@ var populateValidYPositions = function() {
         }
     }
     return validYs;
-}
-
-
-function roundX(x) {
-    return 1;
-}
+};
 
 
 /**
- * Returns
+ * Given a value, returns the closest element in an array and its index.
  */
-function getClosest(value, array) {
+var getClosest = function(value, array) {
     var closest = array[0];
     var closestIndex = 0;
     for (i = 1; i < array.length; i++) {
@@ -94,23 +84,31 @@ function getClosest(value, array) {
         }
     }
     return [closest, closestIndex];
-}
+};
 
 /**
  * Takes a y and rounds it to the y value of the nearest valid position.
  */
 var roundY = function(y) {
     return getClosest(y, validYPositions)[0];
-}
+};
 
 
+/**
+ * Given a y-value, return the Date where it falls on the y-axis.
+ */
 function getDateFromY(value) {
     return yScale.invert(value);
-}
+};
 
+
+/**
+ * Given a Date, return the Time.
+ */
 function getTimeFromDate(date) {
     return new Time(date.getHours() + ":" + date.getMinutes(), 0);
-}
+};
+
 
 /**
  * Creates an event box in the calendar.
@@ -123,8 +121,7 @@ var createEvent = function(name, startTime, endTime, uid) {
         spacing = 2;
 
     var dragbarHeight = 10;
-    var minEventHeight = 0;//yScale(new Time("9:15", 0).getDateObject()) - yScale(new Time("9:00", 0).getDateObject());
-    console.log(minEventHeight);
+    var minEventHeight = 0; //yScale(new Time("9:15", 0).getDateObject()) - yScale(new Time("9:00", 0).getDateObject());
 
     function resizeEvent(d) {
         d.y += d3.event.dy;
@@ -240,8 +237,16 @@ var createEvent = function(name, startTime, endTime, uid) {
                                    .attr("height", dragbarHeight)
                                    .attr("cursor", "ns-resize")
                                    .call(d3.drag().on("drag", resizeEvent));
+};
 
-}
+
+/**
+ * Set up calendar SVG.
+ */
+
+
+// "padding" inside the SVG
+var margin = {top: 30, bottom: 30, left: 50, right: 30};
 
 var graphWidth  = $('#calendar').width() - margin.left - margin.right,
     graphHeight = (window.innerHeight * 2) - margin.top - margin.bottom;
@@ -253,18 +258,11 @@ var svg = d3.select("#calendar").append("svg")
                                   .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
 
 var calBackground = svg.append("rect")
-                  .attr("class", "calendar-background")
-                  .attr("width", graphWidth)
-                  .attr("height", graphHeight)
-                  .attr("x", 0)
-                  .attr("y", 0);
-
-// var rightLine = svg.append("line")
-//                    .class("calendar-background-line")
-//                    .attr("x1", calBackground.attr("x"))
-//                    .attr("x2". calBackground.attr("width"))
-//                    .attr("y1", calBackground.attr("y"))
-//                    .attr("y2", calBackground.attr("height"));
+                       .attr("class", "calendar-background")
+                       .attr("width", graphWidth)
+                       .attr("height", graphHeight)
+                       .attr("x", 0)
+                       .attr("y", 0);
 
 var earliestTick = new Time("9:00", 0).getDateObject(),
     latestTick   = new Time("2:00", 1).getDateObject();

@@ -1,3 +1,4 @@
+// Namespace
 window.TrelloCal = {
     Models: {},
     Collections: {},
