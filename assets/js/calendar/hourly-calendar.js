@@ -5,7 +5,9 @@ var updateEventTimes = function(uid, startTime, endTime) {
 }
 
 // "padding" inside the SVG
-var margin = {top: 30, bottom: 30, left: 50, right: 320};
+var margin = {top: 30, bottom: 30, left: 50, right: 30};
+
+var validYPositions = [];
 
 /**
  * Returns an array containing the Dates for each tick mark.
@@ -19,17 +21,21 @@ function getYFromTranslate(translate) {
     return parseFloat(translate.replace(/translate\([0-9]+,/, '').replace(')', ''));
 }
 
-/* Returns an array containing the y-coordinates for each tick mark.
- * Can be associated with the array from getTickTimes().
- */
-var getTickPositions = function() {
-
-    var tickPositions = [];
+var populateValidYPositions = function() {
+    var tickYs = [];
     var ticks = d3.selectAll(".tick").each(function() {
-        tickPositions.push(getYFromTranslate(d3.select(this).attr("transform")));
+        tickYs.push(getYFromTranslate(d3.select(this).attr("transform")));
     });
 
-    return tickPositions;
+    var tickDeltaY = tickYs[1] - tickYs[0];
+    var validYs = [];
+    for (i = 0; i < tickYs.length; i++) {
+        var offset = tickDeltaY / 4;
+        for (j = 0; j < 4; j++) {
+            validYs.push(tickYs[i] + j * offset);
+        }
+    }
+    return validYs;
 }
 
 function roundX(x) {
@@ -56,8 +62,7 @@ function getClosest(value, array) {
  * Takes a y and rounds it to the y value of the nearest hour.
  */
 var roundY = function(y) {
-    var validYs = getTickPositions();
-    return getClosest(y, validYs)[0];
+    return getClosest(y, validYPositions)[0];
 }
 
 /**
@@ -69,23 +74,23 @@ function Time(time, dayOffset) {
     return new Date(2016, 0, 1 + dayOffset, splitTime[0], splitTime[1]);
 }
 
-function getTimeFromY(y) {
-    var i = getClosest(y, getTickPositions())[1];
-    return getTickTimes()[i];
+function getTimeFromY(value) {
+    return yScale.invert(value);
 }
 
 /**
  * Creates an event box in the calendar.
  */
 var createEvent = function(name, startTime, endTime, uid) {
-    var startY = y(startTime),
-        endY   = y(endTime),
+    var startY = yScale(startTime),
+        endY   = yScale(endTime),
         height = Math.abs(startY - endY),
         width  = height * 2
         spacing = 2;
 
-    var dragbarHeight = 20;
-    var minEventHeight = 40;
+    var dragbarHeight = 10;
+    var minEventHeight = yScale(new Time("9:15", 0)) - yScale(new Time("9:00", 0));
+    console.log(minEventHeight);
 
     function resizeEvent(d) {
         d.y += d3.event.dy;
@@ -103,7 +108,7 @@ var createEvent = function(name, startTime, endTime, uid) {
 
             var startY = getYFromTranslate(selectedEventGroup.attr("transform"));
             var endY   = startY + parseFloat(selectedEvent.attr("height"));
-            updateEventTimes(d.uid, getTimeFromY(startY), getTimeFromY(endY));
+            updateEventTimes(d.uid, getTimeFromY(startY), getTimeFromY(endY + spacing));
         }
 
     }
@@ -114,7 +119,7 @@ var createEvent = function(name, startTime, endTime, uid) {
 
         var startY = getYFromTranslate(d3.select(this).attr("transform"));
         var endY   = startY + parseFloat(d3.select(this).select(".event-rect").attr("height"));
-        updateEventTimes(d.uid, getTimeFromY(startY), getTimeFromY(endY));
+        updateEventTimes(d.uid, getTimeFromY(startY), getTimeFromY(endY + spacing));
     }
 
     function dragStart() {
@@ -151,13 +156,13 @@ var createEvent = function(name, startTime, endTime, uid) {
                           .attr("cursor", "move")
                           .attr("opacity", "0.4");
 
-    var eventText = eventGroup.append("text")
-                               .text(name)
-                               .attr("class", "event event-text event-" + uid)
-                               .attr("x", event.attr("width") / 2)
-                               .attr("y", 30)
-                               .attr("text-anchor", "middle")
-                               .attr("font-size", "14px");
+    var eventNameText = eventGroup.append("text")
+                                  .text(name)
+                                  .attr("class", "event event-text event-" + uid)
+                                  .attr("x", event.attr("width") / 2)
+                                  .attr("y", 30)
+                                  .attr("text-anchor", "middle")
+                                  .attr("font-size", "14px");
 
     var dragbarBottom = eventGroup.append("rect")
                                    .data([{ x: event.attr("rx"),
@@ -174,8 +179,8 @@ var createEvent = function(name, startTime, endTime, uid) {
 
 }
 
-var graphWidth  = $('body').width() - margin.left - margin.right,
-    graphHeight = window.innerHeight - margin.top - margin.bottom;
+var graphWidth  = $('#calendar').width() - margin.left - margin.right,
+    graphHeight = (window.innerHeight * 1.5) - margin.top - margin.bottom;
 
 var svg = d3.select("#calendar").append("svg")
                                   .attr("width", graphWidth + margin.left)
@@ -200,20 +205,16 @@ var calBackground = svg.append("rect")
 var earliestTick = new Time("9:00", 0),
     latestTick   = new Time("2:00", 1);
 
-var y = d3.scaleTime()
-          .domain([earliestTick, latestTick])
-          .range([0, graphHeight]);
+var yScale = d3.scaleTime()
+               .domain([earliestTick, latestTick])
+               .range([0, graphHeight]);
 var yAxis = d3.axisLeft()
-              .scale(y)
+              .scale(yScale)
               .ticks(20)
               .tickFormat(d3.timeFormat("%_I %p"))
               .tickSize(-calBackground.attr("width"));
 var yGroup = svg.append("g")
                 .attr("class", "y-axis")
-                .call(yAxis)
+                .call(yAxis);
 
-// var event = createEvent("none", earliestTick, new Date(2016, 7, 13, 12));
-
-var getEventTimes = function(event) {
-    console.log(event);
-}
+validYPositions = populateValidYPositions();
