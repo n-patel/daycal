@@ -1,60 +1,45 @@
 /**
- * Time objects are meant to be relative, therefore the date doesn't matter.
- * DO NOT use array access notation (i.e., ["hour"] or ["minute"]). Instead,
- * use the provided getters.
+ * Return the event model with the given uid.
  */
-function Time(time, dayOffset) {
-    var splitTime = time.split(":");
-    this.hour = splitTime[0];
-    this.minute = splitTime[1];
-
-    this.getHour = function() {
-        var hr = parseFloat(this.hour) % 12;
-        if (hr == 0) {
-            return "12";
-        } else {
-            return "" + hr;
-        }
-    };
-    this.getMinute = function() {
-        if (this.minute == "0") {
-            return "00";
-        } else {
-            return this.minute;
-        };
-    };
-    this.getTimeString = function() {
-        return this.getHour() + ":" + this.getMinute();
-    }
-    this.getDateObject = function() {
-        return new Date(2016, 0, 1 + dayOffset, this.hour, this.minute);
-    };
-    return this;
-}
-
-function getTimeFromDate(date) {
-    return new Time(date.getHours() + ":" + date.getMinutes(), 0);
-}
-
-
-// Calendar-Event Connector: connects hourly-calendar with Backbone event.js.
-var updateEventTimes = function(uid, startTime, endTime) {
-    window.events.get(uid).set({ start: startTime,
-                                   end: endTime  });
-}
-
 var getEvent = function(uid) {
     return window.events.get(uid);
 }
 
-var getEventTimes = function(uid) {
-    return {start: window.events.get(uid).attributes.start,
-            end:   window.events.get(uid).attributes.end };
+
+/**
+ * Remove the event model with the given uid.
+ */
+var destroyEvent = function(uid) {
+    window.events.remove(getEvent(uid));
 }
 
+
+/**
+ * Update start and end properties of the specified event model.
+ */
+var updateEventTimes = function(uid, startTime, endTime) {
+    getEvent(uid).set({ start: startTime,
+                        end:   endTime  });
+}
+
+
+/**
+ * Return the start and end properties of the specified event model.
+ */
+var getEventTimes = function(uid) {
+    return {start: getEvent(uid).attributes.start,
+            end:   getEvent(uid).attributes.end };
+}
+
+
+/**
+ * Return a formatted string (start - end) for user-facing event duration.
+ */
 var getEventTimesString = function(uid) {
     return getEventTimes(uid).start.getTimeString() + " - " + getEventTimes(uid).end.getTimeString()
 }
+
+
 
 // "padding" inside the SVG
 var margin = {top: 30, bottom: 30, left: 50, right: 30};
@@ -90,6 +75,7 @@ var populateValidYPositions = function() {
     return validYs;
 }
 
+
 function roundX(x) {
     return 1;
 }
@@ -111,16 +97,19 @@ function getClosest(value, array) {
 }
 
 /**
- * Takes a y and rounds it to the y value of the nearest hour.
+ * Takes a y and rounds it to the y value of the nearest valid position.
  */
 var roundY = function(y) {
     return getClosest(y, validYPositions)[0];
 }
 
 
-
 function getDateFromY(value) {
     return yScale.invert(value);
+}
+
+function getTimeFromDate(date) {
+    return new Time(date.getHours() + ":" + date.getMinutes(), 0);
 }
 
 /**
@@ -207,10 +196,11 @@ var createEvent = function(name, startTime, endTime, uid) {
                         .call(d3.drag().on("start", dragStart)
                                        .on("drag", dragging)
                                        .on("end", dragEnd))
-                        // .on("contextmenu", function() {
-                        //     d3.event.preventDefault();
-                        //     d3.select(this).remove();
-                        // });
+                        .on("contextmenu", function(d) {
+                            destroyEvent(d.uid);
+                            d3.event.preventDefault();
+                            d3.select(this).remove();
+                        });
                         // TODO: uncomment this after testing.
 
     var event = eventGroup.append("rect")
