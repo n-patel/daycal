@@ -1,17 +1,18 @@
-(function() {
+// (function() {
 var tasksList = new TrelloCal.Collections.Tasks();
-var tasksListView;
+var tasksListView = new TrelloCal.Views.Tasks({ collection: tasksList })
 
 /**
  * Import cards into backbone model.
  */
 var importCards = function(cards) {
+    tasksList.reset();
     $.each(cards, function(key, value) {
         tasksList.add(new TrelloCal.Models.Task({ name: value.name,
                                                   id:   value.id  }) );
     });
 
-    tasksListView = new TrelloCal.Views.Tasks({ collection: tasksList });
+    // tasksListView ;
     tasksListView.render();
 };
 
@@ -26,6 +27,7 @@ var loadCards = function() {
                               importCards,
                               function() { console.log("Failed to load cards."); });
 };
+window.loadCards = loadCards;
 
 
 /**
@@ -48,4 +50,4 @@ var authWithTrello = function() {
 };
 window.authWithTrello = authWithTrello;
 
-})();
+// })();

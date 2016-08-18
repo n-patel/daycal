@@ -57,6 +57,7 @@ TrelloCal.Views.Tasks = Backbone.View.extend({
     },
 
     render: function() {
+        d3.selectAll(".task").remove();
         this.collection.forEach(function(task) {
             // Should be replaced with this.renderOne(task);
             // which for some reason is erroring: 'this.renderOne is not a function'.

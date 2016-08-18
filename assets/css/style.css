@@ -68,6 +68,24 @@ h4 {
     font-weight: 400;
 }
 
+.refresh-button:hover {
+    color: rgb(150, 150, 150);
+    cursor: pointer;
+}
+
+.rotate{
+    -moz-transition: all 1s linear;
+    -webkit-transition: all 1s linear;
+    transition: all 1s linear;
+}
+
+.rotate.down{
+    -ms-transform:rotate(180deg);
+    -moz-transform:rotate(180deg);
+    -webkit-transform:rotate(180deg);
+    transform:rotate(180deg);
+}
+
 
 .tick line, .calendar-background-line {
     stroke: rgb(215, 215, 215);
