@@ -25,17 +25,31 @@
   <body>
     <div id="content">
         <div id="daily-header">
-            <h2>August 15, 2016</h2>
-            <h3>Monday</h3>
+            <h2 id="today-date">Today</h2>    <!-- replaced with today's date - placeholder text important for spacing -->
         </div>
         <div id="calendar">
             <!-- content from javascript calendar -->
         </div>
         <div id="sidebar">
-            <h2>Cards from Trello</h2>
             <ul class="list-group" id="sidebar-list">
+                <!-- <span class="list-group-item list-group-heading dropdown">
+                        <span class="dropdown-toggle" data-toggle="dropdown">
+                            To-Do
+                            <span class="glyphicon glyphicon-triangle-bottom pull-right"></span>
+                        </span>
+
+                        <ul class="dropdown-menu">
+                            <li>List 1</li>
+                            <li>List 2</li>
+                            <li>List 3</li>
+                        </ul> -->
+                <li class="list-group-item">
+                    <h4 class="list-group-heading-text">Cards</h4>
+                    <span class="glyphicon glyphicon-refresh pull-right refresh-button"></span>
+                </li>
                 <!-- content from Trello -->
             </ul>
+
         </div>
     </div>
 
@@ -43,12 +57,8 @@
         <button type="button" class="list-group-item task" data-id="<%= id %>"><%= name %></p>
     </script>
 
-    <script type="text/template" id="event-template">
-        <span class="task"><%= name %></span>
-    </script>
-
     <script src="https://d3js.org/d3.v4.min.js"></script>
-    <script src="assets/js/util.js"></script>
+    <script src="assets/js/util/util.js"></script>
     <script src="assets/js/calendar/hourly-calendar.js"></script>
     <script src="assets/js/backbone/app.js"></script>
     <script src="assets/js/backbone/event.js"></script>
@@ -56,12 +66,16 @@
     <script src="assets/js/trello/trello-connector.js"></script>
 
     <script type="text/javascript">
-        /**
-         * Authorize with Trello when the page loads.
-         */
         $(function() {
             authWithTrello();
-        })
+
+            // disable scrolling on the body
+            $("html, body, #content").height(window.innerHeight - $("#daily-header").outerHeight() - 1);
+
+            $("#today-date").html(getTodayPrettyString());
+
+
+        });
     </script>
 
   </body>

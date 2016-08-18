@@ -250,7 +250,8 @@ window.createEvent = createEvent;
 
 
 // "padding" inside the SVG
-var margin = {top: 30, bottom: 30, left: 50, right: 30};
+// 10px on the right should be just enough for native browser scrollbars.
+var margin = {top: 30, bottom: 30, left: 50, right: 10};
 
 var graphWidth  = $('#calendar').width() - margin.left - margin.right,
     graphHeight = (window.innerHeight * 2) - margin.top - margin.bottom;

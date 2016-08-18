@@ -1,10 +1,42 @@
+@import 'https://fonts.googleapis.com/css?family=Lato:100,300,400|Open+Sans:300,400';
+
+body, h2 {
+    font-family: 'Lato';
+    font-weight: 300;
+    margin-top: 0;
+}
+
+
+
+.tick {
+    font-family: 'Lato';
+    font-weight: 300;
+}
+
+h2 {
+    font-weight: 300;
+}
+
+.thin {
+    font-weight: 100;
+}
+
 #content, html, body {
     height: 100%;
 }
 
+#today-date {
+
+}
+
 #daily-header {
-    width: 70%;
-    display: inline-block;
+    width: 94%;
+    margin-left: 4%;
+    margin-top: 0;
+    padding-top: 20px;
+    border-bottom: 1px solid rgb(192, 192, 192);
+    color: rgb(100, 100, 100);
+
 }
 
 #calendar {
@@ -19,8 +51,22 @@
     width: 30%;
     height: 100%;
     overflow: scroll;
+    padding: 30px;
 }
 
+h4 {
+    margin: 0;
+    padding: 0;
+}
+
+.list-group-heading {
+    /*background-color: rgb(245, 245, 245);*/
+}
+
+.list-group-heading-text {
+    display: inline-block;
+    font-weight: 400;
+}
 
 
 .tick line, .calendar-background-line {
