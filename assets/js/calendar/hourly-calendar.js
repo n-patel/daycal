@@ -108,7 +108,7 @@ function getDateFromY(value) {
 /**
  * Given a Date, return the Time.
  */
-function getTimeFromDate(date) {
+var getTimeFromDate = function(date) {
     return new Time(date.getHours() + ":" + date.getMinutes());
 };
 
@@ -285,4 +285,27 @@ var yGroup = svg.append("g")
                 .call(yAxis);
 
 validYPositions = populateValidYPositions();
+
+
+var nowTime = getTimeFromDate(new Date(Date.now()))
+var currentTimeY = yScale(nowTime.getDateObject());
+
+var timeLine = svg.append("line")
+                  .attr("class", "current-time")
+                  .attr("x1", calBackground.attr("width"))
+                  .attr("x2", 0)
+                  .attr("stroke-width", 1)
+                  .attr("stroke", "rgb(0, 55, 140)");
+
+function updateCurrentTimePosition() {
+    var nowTime = getTimeFromDate(new Date(Date.now()));
+    var currentTimeY = yScale(nowTime.getDateObject());
+
+    d3.select(".current-time").attr("y1", currentTimeY)
+                              .attr("y2", currentTimeY);
+}
+
+updateCurrentTimePosition();
+setInterval(updateCurrentTimePosition, 1000 * 60 * 2);      // update time every 2 min
+
 })();
