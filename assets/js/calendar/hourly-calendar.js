@@ -109,7 +109,7 @@ function getDateFromY(value) {
  * Given a Date, return the Time.
  */
 function getTimeFromDate(date) {
-    return new Time(date.getHours() + ":" + date.getMinutes(), 0);
+    return new Time(date.getHours() + ":" + date.getMinutes());
 };
 
 
@@ -269,8 +269,8 @@ var calBackground = svg.append("rect")
                        .attr("x", 0)
                        .attr("y", 0);
 
-var earliestTick = new Time("9:00", 0).getDateObject(),
-    latestTick   = new Time("2:00", 1).getDateObject();
+var earliestTick = new Time("9:00").getDateObject(),
+    latestTick   = new Time("2:00").getDateObject();
 
 var yScale = d3.scaleTime()
                .domain([earliestTick, latestTick])
