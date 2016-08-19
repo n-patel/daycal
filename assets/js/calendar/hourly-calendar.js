@@ -37,7 +37,7 @@ var getEventTimes = function(uid) {
  * Return a formatted string (start - end) for user-facing event duration.
  */
 var getEventTimesString = function(uid) {
-    return getEventTimes(uid).start.getTimeString() + " - " + getEventTimes(uid).end.getTimeString()
+    return getEventTimes(uid).start.getPrettyTimeString() + " - " + getEventTimes(uid).end.getPrettyTimeString()
 };
 
 
