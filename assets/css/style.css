@@ -6,7 +6,9 @@ body, h2 {
     margin-top: 0;
 }
 
-
+.hover-show {
+    display: none;
+}
 
 .tick {
     font-family: 'Lato';

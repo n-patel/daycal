@@ -31,7 +31,12 @@ TrelloCal.Views.Tasks = Backbone.View.extend({
     collection: null,
 
     events: {
-        "click button": "clicked"
+        "click button": "clicked",
+        "mouseenter button": "hover",
+        "mouseleave button": "unhover",
+
+        "click .color-button": "changeColor",
+        "click .trash-button": "deleteTask"
     },
 
     clicked: function(e) {
@@ -44,6 +49,26 @@ TrelloCal.Views.Tasks = Backbone.View.extend({
                                                    sibling: task.get("events") });
         task.set("events", task.get("events") + 1);
         window.events.add(newEvent);        // TODO
+    },
+
+    hover: function(e) {
+        var id = $(e.currentTarget).data("id");
+        $("[data-id='" + id + "'] .hover-show").show();
+    },
+
+    unhover: function(e) {
+        var id = $(e.currentTarget).data("id");
+        $("[data-id='" + id + "'] .hover-show").hide();
+    },
+
+    changeColor: function(e) {
+        e.stopImmediatePropagation();
+        console.log("Change color.");
+    },
+
+    deleteTask: function(e) {
+        e.stopImmediatePropagation();
+        console.log("Delete task.");
     },
 
     initialize: function(options) {

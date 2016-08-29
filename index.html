@@ -44,7 +44,11 @@
     </div>
 
     <script type="text/template" id="sidebar-template">
-        <button type="button" class="list-group-item task" data-id="<%= id %>"><%= name %></p>
+        <button type="button" class="list-group-item task" data-id="<%= id %>">
+            <%= name %>
+            <span class="glyphicon glyphicon-trash pull-right trash-button hover-show"></span>
+            <span class="glyphicon glyphicon-tint pull-right color-button hover-show"></span>
+        </button>
     </script>
 
     <script src="https://d3js.org/d3.v4.min.js"></script>
