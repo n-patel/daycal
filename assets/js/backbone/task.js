@@ -68,7 +68,8 @@ TrelloCal.Views.Tasks = Backbone.View.extend({
 
     deleteTask: function(e) {
         e.stopImmediatePropagation();
-        console.log("Delete task.");
+        var id = $(e.currentTarget).parent().data("id");
+        $("[data-id='" + id + "']").remove();
     },
 
     initialize: function(options) {
