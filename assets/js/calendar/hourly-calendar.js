@@ -136,7 +136,8 @@ var createEvent = function(name, startTime, endTime, uid) {
         var selectedEventGroup = d3.select("g.event-group.event-" + d.uid);
         var selectedEvent = d3.select(".event-rect.event-" + d.uid);
 
-        var newHeight = (roundY(d.y) - selectedEvent.attr("y"))
+        var newHeight = (roundY(d.y) - spacing)
+        console.log(newHeight);
         if (newHeight >= minEventHeight) {
             // move dragbar
             d3.select(this).attr("transform", "translate(" + d.x + "," + (roundY(d.y) - dragbarHeight) + ")");
