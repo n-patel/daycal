@@ -50,6 +50,7 @@ TrelloCal.Views.Events = Backbone.View.extend({
 
     eventAdded: function(event) {
         this.renderOne(event);
+        event.save();
     },
 
     destroyEvent: function(event) {
