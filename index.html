@@ -80,19 +80,6 @@
                 loadCards();
             });
 
-
-
-            // var c = new TrelloCal.Collections.Events();
-            // c.localStorage = new Backbone.LocalStorage("EventsList");
-
-            // console.log(c);
-            //
-            // _.each(c.localStorage.records, function(event) {
-            //     console.log("EventsList-" + event);
-            // });
-            // window.events = c;
-            // console.log(c.pluck('name'));
-
             var ls = new Backbone.LocalStorage("EventsList");
             _.each(ls.findAll(), function(eventJson) {
                 var event = new TrelloCal.Models.Event({name: eventJson.name,
@@ -104,8 +91,6 @@
                                                             events: eventJson.task.event }),
                                                         start: new Time(eventJson.start.hour + ":" + eventJson.start.minute),
                                                         end: new Time(eventJson.end.hour + ":" + eventJson.end.minute) });
-                console.log("Loaded from localStorage:");
-                console.log(event);
                 window.events.add(event);
             });
 

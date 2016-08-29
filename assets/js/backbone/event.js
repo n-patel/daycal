@@ -14,10 +14,6 @@ TrelloCal.Models.Event = Backbone.Model.extend({
         end: new Time("11:00", 0),
     },
 
-    // toJSON: function() {
-    //     console.log("fuck u");
-    // },
-
 });
 
 
@@ -29,8 +25,6 @@ TrelloCal.Collections.Events = Backbone.Collection.extend({
 
 TrelloCal.Views.Event = Backbone.View.extend({
     render: function() {
-        console.log("this.model:");
-        console.log(this.model.attributes.start);
         createEvent(this.model.attributes.name,
                     this.model.attributes.start,
                     this.model.attributes.end,
@@ -55,9 +49,7 @@ TrelloCal.Views.Events = Backbone.View.extend({
     },
 
     eventAdded: function(event) {
-        console.log("event " + event.attributes.name + " added");
         this.renderOne(event);
-        event.save();
     },
 
     destroyEvent: function(event) {
