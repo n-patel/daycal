@@ -43,7 +43,7 @@ TrelloCal.Views.Tasks = Backbone.View.extend({
                                                    task: task,
                                                    sibling: task.get("events") });
         task.set("events", task.get("events") + 1);
-        window.events.add(newEvent);
+        window.events.add(newEvent);        // TODO
     },
 
     initialize: function(options) {

@@ -28,8 +28,10 @@ var updateEventTimes = function(uid, startTime, endTime) {
  * Return the start and end properties of the specified event model.
  */
 var getEventTimes = function(uid) {
-    return {start: getEvent(uid).attributes.start,
-            end:   getEvent(uid).attributes.end };
+    // console.log(getEvent(uid));
+    // console.log(getEvent(uid).attributes.start);
+    return {start: new Time(getEvent(uid).attributes.start.hour + ":" + getEvent(uid).attributes.start.minute),
+            end:   new Time(getEvent(uid).attributes.end.hour   + ":" + getEvent(uid).attributes.end.minute) };
 };
 
 
@@ -37,6 +39,7 @@ var getEventTimes = function(uid) {
  * Return a formatted string (start - end) for user-facing event duration.
  */
 var getEventTimesString = function(uid) {
+    // console.log(getEventTimes(uid).start);
     return getEventTimes(uid).start.getPrettyTimeString() + " - " + getEventTimes(uid).end.getPrettyTimeString()
 };
 
@@ -123,6 +126,8 @@ var createEvent = function(name, startTime, endTime, uid) {
         width  = height * 2
         spacing = 2;
 
+    console.log(startY);
+
     var dragbarHeight = 10;
     var minEventHeight = 0; //yScale(new Time("9:15", 0).getDateObject()) - yScale(new Time("9:00", 0).getDateObject());
 
@@ -188,7 +193,7 @@ var createEvent = function(name, startTime, endTime, uid) {
     var eventPadding = {top: 5, bottom: 20, left: 10, right: 10};
 
     var eventGroup = svg.append("g")
-                        .data([{ x: 0, y: 0, uid: uid}])
+                        .data([{ x: 0, y: startY, uid: uid}])
                         .attr("class", "event event-group event-" + uid)
                         .attr("transform", function(d) {
                             return "translate(" + d.x + "," + d.y + ")";
@@ -207,7 +212,7 @@ var createEvent = function(name, startTime, endTime, uid) {
                           .attr("class", "event event-rect event-" + uid)
                           .attr("width", calBackground.attr("width"))
                           .attr("height", height - spacing)  /* add spacing between */
-                          .attr("y", startY + spacing)       /* consecutive events. */
+                          .attr("transform", "translate(0,0)")// + (startY + spacing) + ")")       /* consecutive events. */
                           .attr("x", 0)
                           .attr("rx", "0")
                           .attr("ry", "0")
@@ -219,14 +224,15 @@ var createEvent = function(name, startTime, endTime, uid) {
                                   .attr("class", "event event-text event-text-time event-" + uid)
                                   .attr("text-anchor", "end")
                                   .attr("x", event.attr("width") - eventPadding.left);
-                     eventTimeText.attr("y", eventTimeText.node().getBBox().height + eventPadding.top);
+                                  console.log(eventTimeText.node().getBBox().height);
+                     eventTimeText.attr("y", parseFloat(getYFromTranslate(event.attr("transform"))) + eventTimeText.node().getBBox().height);// + eventPadding.top);
 
     var eventNameText = eventGroup.append("text")
                                   .text(name)
                                   .attr("class", "event event-text event-text-name event-" + uid)
                                   .attr("text-anchor", "start")
                                   .attr("x", eventPadding.right);
-                     eventNameText.attr("y", eventNameText.node().getBBox().height + eventPadding.top);
+                     eventNameText.attr("y", parseFloat(getYFromTranslate(event.attr("transform"))) + eventNameText.node().getBBox().height + eventPadding.top);
 
     var dragbarBottom = eventGroup.append("rect")
                                    .data([{ x: event.attr("rx"),
@@ -283,12 +289,8 @@ var yAxis = d3.axisLeft()
 var yGroup = svg.append("g")
                 .attr("class", "y-axis")
                 .call(yAxis);
-
 validYPositions = populateValidYPositions();
 
-
-var nowTime = getTimeFromDate(new Date(Date.now()))
-var currentTimeY = yScale(nowTime.getDateObject());
 
 var timeLine = svg.append("line")
                   .attr("class", "current-time")
@@ -296,6 +298,7 @@ var timeLine = svg.append("line")
                   .attr("x2", 0)
                   .attr("stroke-width", 1)
                   .attr("stroke", "rgb(0, 55, 140)");
+
 
 function updateCurrentTimePosition() {
     var nowTime = getTimeFromDate(new Date(Date.now()));

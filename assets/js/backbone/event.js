@@ -1,6 +1,6 @@
 TrelloCal.Models.Event = Backbone.Model.extend({
     initialize: function(options) {
-        this.set('uid', options.task.attributes.id + "_" + options.sibling);
+        this.set('uid', options.task.id + "_" + options.sibling);
     },
 
     idAttribute: 'uid',
@@ -12,17 +12,25 @@ TrelloCal.Models.Event = Backbone.Model.extend({
         uid: '',        // computed id: {task}_{sibling}
         start: new Time("9:00", 0),
         end: new Time("11:00", 0),
-    }
+    },
+
+    // toJSON: function() {
+    //     console.log("fuck u");
+    // },
+
 });
 
 
 TrelloCal.Collections.Events = Backbone.Collection.extend({
     model: TrelloCal.Models.Event,
+    localStorage: new Backbone.LocalStorage("EventsList"),
 });
 
 
 TrelloCal.Views.Event = Backbone.View.extend({
     render: function() {
+        console.log("this.model:");
+        console.log(this.model.attributes.start);
         createEvent(this.model.attributes.name,
                     this.model.attributes.start,
                     this.model.attributes.end,
@@ -35,8 +43,25 @@ TrelloCal.Views.Events = Backbone.View.extend({
     collection: null,
 
     initialize: function(options) {
-        this.collection = options.collection
-        this.collection.on("add", this.renderOne, this);
+        this.collection = options.collection;
+        this.collection.on("add", this.eventAdded, this);
+        // this.collection.on("reset", this.render);
+        this.collection.on("remove", this.destroyEvent);
+        this.collection.on("change", this.changed);
+    },
+
+    changed: function(event) {
+        event.save();
+    },
+
+    eventAdded: function(event) {
+        console.log("event " + event.attributes.name + " added");
+        this.renderOne(event);
+        event.save();
+    },
+
+    destroyEvent: function(event) {
+        event.destroy();
     },
 
     renderOne: function(event) {
@@ -54,4 +79,4 @@ TrelloCal.Views.Events = Backbone.View.extend({
 
 
 window.events = new TrelloCal.Collections.Events();
-new TrelloCal.Views.Events({collection: window.events});
+window.eventsView = new TrelloCal.Views.Events({collection: window.events});
