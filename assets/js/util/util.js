@@ -12,7 +12,7 @@ function Time(time) {
     } else {
         this.hour = time.hour;
         this.minute = time.minute;
-    }
+    };
 
     this.getHour = function() {
         return this.hour;

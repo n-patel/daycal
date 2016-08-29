@@ -19,16 +19,16 @@ TrelloCal.Models.Event = Backbone.Model.extend({
 
 TrelloCal.Collections.Events = Backbone.Collection.extend({
     model: TrelloCal.Models.Event,
-    localStorage: new Backbone.LocalStorage("EventsList"),
+    localStorage: new Backbone.LocalStorage("events-list"),
 });
 
 
 TrelloCal.Views.Event = Backbone.View.extend({
     render: function() {
-        createEvent(this.model.attributes.name,
-                    this.model.attributes.start,
-                    this.model.attributes.end,
-                    this.model.attributes.uid);
+        createEvent(this.model.get('name'),
+                    this.model.get('start'),
+                    this.model.get('end'),
+                    this.model.get('uid'));
     },
 });
 

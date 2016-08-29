@@ -1,4 +1,4 @@
-// (function() {
+(function() {
 var tasksList = new TrelloCal.Collections.Tasks();
 var tasksListView = new TrelloCal.Views.Tasks({ collection: tasksList })
 
@@ -12,7 +12,6 @@ var importCards = function(cards) {
                                                   id:   value.id  }) );
     });
 
-    // tasksListView ;
     tasksListView.render();
 };
 
@@ -50,4 +49,4 @@ var authWithTrello = function() {
 };
 window.authWithTrello = authWithTrello;
 
-// })();
+})();

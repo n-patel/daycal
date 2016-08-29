@@ -28,10 +28,8 @@ var updateEventTimes = function(uid, startTime, endTime) {
  * Return the start and end properties of the specified event model.
  */
 var getEventTimes = function(uid) {
-    // console.log(getEvent(uid));
-    // console.log(getEvent(uid).attributes.start);
-    return {start: new Time(getEvent(uid).attributes.start.hour + ":" + getEvent(uid).attributes.start.minute),
-            end:   new Time(getEvent(uid).attributes.end.hour   + ":" + getEvent(uid).attributes.end.minute) };
+    return {start: new Time(getEvent(uid).get('start').hour + ":" + getEvent(uid).get('start').minute),
+            end:   new Time(getEvent(uid).get('end').hour   + ":" + getEvent(uid).get('end').minute) };
 };
 
 
@@ -39,7 +37,6 @@ var getEventTimes = function(uid) {
  * Return a formatted string (start - end) for user-facing event duration.
  */
 var getEventTimesString = function(uid) {
-    // console.log(getEventTimes(uid).start);
     return getEventTimes(uid).start.getPrettyTimeString() + " - " + getEventTimes(uid).end.getPrettyTimeString()
 };
 
@@ -126,10 +123,8 @@ var createEvent = function(name, startTime, endTime, uid) {
         width  = height * 2
         spacing = 2;
 
-    console.log(startY);
-
     var dragbarHeight = 10;
-    var minEventHeight = 0; //yScale(new Time("9:15", 0).getDateObject()) - yScale(new Time("9:00", 0).getDateObject());
+    var minEventHeight = 0;
 
     function resizeEvent(d) {
         d.y += d3.event.dy;
@@ -137,7 +132,6 @@ var createEvent = function(name, startTime, endTime, uid) {
         var selectedEvent = d3.select(".event-rect.event-" + d.uid);
 
         var newHeight = (roundY(d.y) - spacing)
-        console.log(newHeight);
         if (newHeight >= minEventHeight) {
             // move dragbar
             d3.select(this).attr("transform", "translate(" + d.x + "," + (roundY(d.y) - dragbarHeight) + ")");
@@ -225,8 +219,7 @@ var createEvent = function(name, startTime, endTime, uid) {
                                   .attr("class", "event event-text event-text-time event-" + uid)
                                   .attr("text-anchor", "end")
                                   .attr("x", event.attr("width") - eventPadding.left);
-                                  console.log(eventTimeText.node().getBBox().height);
-                     eventTimeText.attr("y", parseFloat(getYFromTranslate(event.attr("transform"))) + eventTimeText.node().getBBox().height);// + eventPadding.top);
+                     eventTimeText.attr("y", parseFloat(getYFromTranslate(event.attr("transform"))) + eventTimeText.node().getBBox().height + eventPadding.top);// + eventPadding.top);
 
     var eventNameText = eventGroup.append("text")
                                   .text(name)
