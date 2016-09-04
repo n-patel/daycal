@@ -39,6 +39,7 @@ var populateLists = function(boardId) {
                                     .attr("data-id", value.id)
                                     .on("click", function() {
                                         loadCards(value.id);
+                                        saveToLocalStorage("selected-list", value.id);
                                     });
         });
     });
@@ -66,6 +67,10 @@ window.populateBoards = populateBoards;
 
 
 var getBoards = function() {
+    var selectedList = getFromLocalStorage("selected-list");
+    if (selectedList != null) {
+        loadCards(selectedList);
+    }
     var response = Trello.get('/members/me/boards', populateBoards);
 };
 

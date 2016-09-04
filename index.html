@@ -32,12 +32,10 @@
             <!-- content from javascript calendar -->
         </div>
         <div id="sidebar">
-            <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#myModal">
-              Choose list
-            </button>
             <ul class="list-group" id="sidebar-list">
                 <li class="list-group-item">
                     <h4 class="list-group-heading-text">Cards</h4>
+                    <a class="change-list" data-toggle="modal" data-target="#listSelectModal">Change list</a>
                     <span class="glyphicon glyphicon-refresh pull-right refresh-button rotate"></span>
                 </li>
                 <!-- content from Trello -->
@@ -45,30 +43,20 @@
 
         </div>
 
-        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-          <div class="modal-dialog" role="document">
+        <div class="modal fade" id="listSelectModal" tabindex="-1">
+          <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="myModalLabel">My Boards</h4>
+                <button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+                <h4 class="modal-title">My Boards</h4>
               </div>
               <div class="modal-body">
-                <!-- content from Trello -->
-                <!-- <p>Loading...</p> -->
                 <ul class="modal-list list-group">
-
+                    <!-- content from Trello -->
                 </ul>
-                <!-- <div class="dropdown open">
-                  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Dropdown button
-                  </button>
-                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                  </div>
-                </div> -->
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
               </div>
             </div>
           </div>
