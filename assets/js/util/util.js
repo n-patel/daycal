@@ -1,3 +1,12 @@
+function saveToLocalStorage(key, value) {
+    localStorage.setItem(key, value);
+}
+
+function loadFromLocalStorage(key) {
+    return localStorage.getItem(key);
+}
+
+
 /**
  * Time objects are meant to be relative, therefore the date doesn't matter.
  * DO NOT use array access notation (i.e., ["hour"] or ["minute"]). Instead,

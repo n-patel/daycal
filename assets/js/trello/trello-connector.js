@@ -18,15 +18,66 @@ var importCards = function(cards) {
 
 /**
  * Load cards from the given list id.
- * TODO: make list id a method argument.
  */
-var loadCards = function() {
-    var myList = "55dbffbe1ddddab4372dbc3c";
-    var response = Trello.get('/lists/' + myList + '/cards',
+var loadCards = function(listId) {
+    var response = Trello.get('/lists/' + listId + '/cards',
                               importCards,
                               function() { console.log("Failed to load cards."); });
 };
 window.loadCards = loadCards;
+
+
+var populateLists = function(boardId, boardName) {
+    window.lists = {};
+    d3.select(".modal-list").html("");
+    d3.select(".modal-title").text("Lists on \"" + boardName + "\"");
+    d3.select(".back-button").style("display", "inline-block")
+                             .on("click", function() { getBoards(); });
+
+    var response = Trello.get('/boards/' + boardId + '/lists/', function(lists) {
+        $.each(lists, function(key, value) {
+            window.lists[value.name] = value.id;
+            d3.select(".modal-list").append("button")
+                                    .text(value.name)
+                                    .attr("type", "button")
+                                    .attr("class", "list-group-item")
+                                    .attr("data-id", value.id)
+                                    .on("click", function() {
+                                        loadCards(value.id);
+                                        saveToLocalStorage("selected-list", value.id);
+                                        $("#listSelectModal").modal('hide');
+                                    });
+        });
+    });
+};
+window.populateLists = populateLists;
+
+
+var populateBoards = function(boards) {
+    window.boards = {};
+    d3.select(".modal-list").html("");
+    d3.select(".modal-title").text("Trello Boards");
+    d3.select(".back-button").style("display", "none");
+    $.each(boards, function(key, value) {
+        if (!value.closed) {
+            window.boards[value.name] = value.id;
+            d3.select(".modal-list").append("button")
+                                    .text(value.name)
+                                    .attr("type", "button")
+                                    .attr("class", "list-group-item")
+                                    .attr("data-id", value.id)
+                                    .on("click", function() {
+                                        populateLists(d3.select(this).attr("data-id"), value.name);
+                                    });
+        };
+    });
+};
+window.populateBoards = populateBoards;
+
+
+var getBoards = function() {
+    var response = Trello.get('/members/me/boards', populateBoards);
+};
 
 
 /**
@@ -38,12 +89,12 @@ var authWithTrello = function() {
 
     Trello.authorize({
         type: "redirect",
-        name: "Trello Daily Scheduler",
+        name: "DayCal.io",
         scope: {
             read: true,
             write: true },
         expiration: "never",
-        success: loadCards,
+        success: getBoards,
         error: authenticationFailure
     });
 };
