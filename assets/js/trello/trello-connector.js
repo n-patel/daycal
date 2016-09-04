@@ -27,19 +27,25 @@ var loadCards = function(listId) {
 window.loadCards = loadCards;
 
 
-var populateLists = function(boardId) {
+var populateLists = function(boardId, boardName) {
     window.lists = {};
     d3.select(".modal-list").html("");
+    d3.select(".modal-title").text("Lists on \"" + boardName + "\"");
+    d3.select(".back-button").style("display", "inline-block")
+                             .on("click", function() { getBoards(); });
+
     var response = Trello.get('/boards/' + boardId + '/lists/', function(lists) {
         $.each(lists, function(key, value) {
             window.lists[value.name] = value.id;
-            d3.select(".modal-list").append("li")
+            d3.select(".modal-list").append("button")
                                     .text(value.name)
+                                    .attr("type", "button")
                                     .attr("class", "list-group-item")
                                     .attr("data-id", value.id)
                                     .on("click", function() {
                                         loadCards(value.id);
                                         saveToLocalStorage("selected-list", value.id);
+                                        $("#listSelectModal").modal('hide');
                                     });
         });
     });
@@ -50,15 +56,18 @@ window.populateLists = populateLists;
 var populateBoards = function(boards) {
     window.boards = {};
     d3.select(".modal-list").html("");
+    d3.select(".modal-title").text("Trello Boards");
+    d3.select(".back-button").style("display", "none");
     $.each(boards, function(key, value) {
         if (!value.closed) {
             window.boards[value.name] = value.id;
-            d3.select(".modal-list").append("li")
+            d3.select(".modal-list").append("button")
                                     .text(value.name)
+                                    .attr("type", "button")
                                     .attr("class", "list-group-item")
                                     .attr("data-id", value.id)
                                     .on("click", function() {
-                                        populateLists(d3.select(this).attr("data-id"));
+                                        populateLists(d3.select(this).attr("data-id"), value.name);
                                     });
         };
     });
@@ -67,10 +76,6 @@ window.populateBoards = populateBoards;
 
 
 var getBoards = function() {
-    var selectedList = getFromLocalStorage("selected-list");
-    if (selectedList != null) {
-        loadCards(selectedList);
-    }
     var response = Trello.get('/members/me/boards', populateBoards);
 };
 

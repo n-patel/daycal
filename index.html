@@ -56,6 +56,10 @@
                 </ul>
               </div>
               <div class="modal-footer">
+                <button type="button" class="btn btn-default back-button">
+                    <span class="glyphicon glyphicon-chevron-left pull-left"></span>
+                    Back
+                </button>
                 <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
               </div>
             </div>
@@ -93,8 +97,15 @@
 
             $(".refresh-button").on("click", function() {
                 $(this).toggleClass("down");
-                loadCards();
+                loadCards(loadFromLocalStorage("selected-list"));
             });
+
+            var selectedList = loadFromLocalStorage("selected-list");
+            if (selectedList != null) {
+                loadCards(selectedList);
+            } else {
+                $("#listSelectModal").modal();
+            }
 
             var ls = new Backbone.LocalStorage("events-list");
             _.each(ls.findAll(), function(eventJson) {
@@ -109,7 +120,6 @@
                                                         end: new Time(eventJson.end.hour + ":" + eventJson.end.minute) });
                 window.events.add(event);
             });
-
         });
     </script>
 

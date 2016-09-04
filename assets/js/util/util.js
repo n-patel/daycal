@@ -2,7 +2,7 @@ function saveToLocalStorage(key, value) {
     localStorage.setItem(key, value);
 }
 
-function getFromLocalStorage(key) {
+function loadFromLocalStorage(key) {
     return localStorage.getItem(key);
 }
 
