@@ -121,3 +121,7 @@ rect.event-rect {
 .event-text {
     fill: rgb(100, 100, 100);
 }
+
+.load-template {
+    padding-right: 10px;
+}

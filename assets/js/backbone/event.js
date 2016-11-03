@@ -51,9 +51,11 @@ TrelloCal.Views.Events = Backbone.View.extend({
     eventAdded: function(event) {
         this.renderOne(event);
         event.save();
+        window.events.add(event);
     },
 
     destroyEvent: function(event) {
+        window.events.remove(event);
         event.destroy();
     },
 
@@ -71,5 +73,50 @@ TrelloCal.Views.Events = Backbone.View.extend({
 });
 
 
-window.events = new TrelloCal.Collections.Events();
+window.events     = new TrelloCal.Collections.Events();
 window.eventsView = new TrelloCal.Views.Events({collection: window.events});
+
+
+function loadEvents(events) {
+    _.each(events, function(eventJSON) {
+        console.log(eventJSON);
+        var event = new TrelloCal.Models.Event({name: eventJSON.name,
+                                                sibling: eventJSON.sibling,
+                                                uid: eventJSON.uid,
+                                                task: new TrelloCal.Models.Task({
+                                                    name: eventJSON.task.name,
+                                                    id: eventJSON.task.id,
+                                                    events: eventJSON.task.event }),
+                                                start: new Time(eventJSON.start.hour + ":" + eventJSON.start.minute),
+                                                end: new Time(eventJSON.end.hour + ":" + eventJSON.end.minute) });
+        window.events.add(event);
+    });
+}
+
+function saveCurrentToTemplate(templateName) {
+    localStorage.setItem("template-" + templateName, JSON.stringify(window.events));
+
+    var existingTemplates = localStorage.getItem("templates");
+    if (existingTemplates == null) {
+        existingTemplates = "";
+    } else {
+        existingTemplates += ",";
+    }
+
+    localStorage.setItem("templates", existingTemplates + "template-" + templateName);
+}
+
+function loadFromTemplate(templateName) {
+    console.log(templateName);
+    var loaded = JSON.parse(localStorage.getItem("template-" + templateName));
+    console.log(loaded);
+    loadEvents(loaded);
+}
+
+function getTemplateList() {
+    var templates = [];
+    $.each(localStorage, function(key, value) {
+        templates.push(key);
+    });
+    return templates;
+}

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>DayCal</title>
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="assets/css/cal.css">
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.3.3/backbone-min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/backbone-localstorage.js/1.1.16/backbone.localStorage-min.js"></script>
+	<script src="https://api.trello.com/1/client.js?key=6592dbf2ffbed1962087818ea6872588"></script>
+
+	<!--[if lt IE 9]>
+	  <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
+	  <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+	<![endif]-->
+</head>
+
+<body>
+	<div id="content">
+		<div id="daily-header">
+			<a class="pull-right save-template" data-toggle="modal" data-target="#save-template-modal">Save as template</a>
+			<a class="pull-right load-template" data-toggle="modal" data-target="#load-template-modal">Load template</a>
+			<h2 id="today-date">Today</h2>	<!-- replaced with today's date - placeholder text important for spacing -->
+		</div>
+		<div id="calendar">
+			<!-- content from javascript calendar -->
+		</div>
+		<div id="sidebar">
+			<ul class="list-group" id="sidebar-list">
+				<li class="list-group-item">
+					<h4 class="list-group-heading-text">Cards</h4>
+					<a class="change-list" data-toggle="modal" data-target="#listSelectModal">Change list</a>
+					<span class="glyphicon glyphicon-refresh pull-right refresh-button rotate"></span>
+				</li>
+				<!-- content from Trello -->
+			</ul>
+		</div>
+
+		<div class="modal fade" id="listSelectModal" tabindex="-1">
+		  <div class="modal-dialog">
+			<div class="modal-content">
+			  <div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+				<h4 class="modal-title">My Boards</h4>
+			  </div>
+			  <div class="modal-body">
+				<ul class="modal-list list-group">
+					<!-- content from Trello -->
+				</ul>
+			  </div>
+			  <div class="modal-footer">
+				<button type="button" class="btn btn-default back-button">
+					<span class="glyphicon glyphicon-chevron-left pull-left"></span>
+					Back
+				</button>
+				<button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+			  </div>
+			</div>
+		  </div>
+		</div>
+
+		<div class="modal fade" id="save-template-modal" tabindex="-1">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+						<h4 class="modal-title">New Template</h4>
+					</div>
+					<div class="modal-body">
+						<p>Warning: This feature is still buggy!</p>
+						<form>
+							<label for="templateNameInput">Template name</label>
+							<input type="text" class="form-control" id="save-template-input" placeholder="Enter template name">
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary save-template-button" data-dismiss="modal">Save</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<div class="modal fade" id="load-template-modal" tabindex="-1">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal"><span>&times;</span></button>
+						<h4 class="modal-title">Load From Template</h4>
+					</div>
+					<div class="modal-body">
+						<form>
+							<label for="templateNameInput">Template name</label>
+							<input type="text" class="form-control" id="load-template-input" placeholder="Enter template name">
+						</form>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary load-template-button" data-dismiss="modal">Load</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+
+	</div>
+
+	<script type="text/template" id="modaltemplate">
+	</script>
+
+	<script type="text/template" id="sidebar-template">
+		<button type="button" class="list-group-item task" data-id="<%= id %>">
+			<%= name %>
+			<span class="glyphicon glyphicon-trash pull-right trash-button hover-show"></span>
+			<span class="glyphicon glyphicon-tint pull-right color-button hover-show"></span>
+		</button>
+	</script>
+
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<script src="assets/js/util/util.js"></script>
+	<script src="assets/js/calendar/hourly-calendar.js"></script>
+	<script src="assets/js/backbone/app.js"></script>
+	<script src="assets/js/backbone/event.js"></script>
+	<script src="assets/js/backbone/task.js"></script>
+	<script src="assets/js/trello/trello-connector.js"></script>
+
+	<script type="text/javascript">
+		$(function() {
+			authWithTrello();
+
+			// disable scrolling on the body
+			$("html, body, #content").height(window.innerHeight - $("#daily-header").outerHeight() - 1);
+
+			$("#today-date").html(getTodayPrettyString());
+
+			$(".refresh-button").on("click", function() {
+				$(this).toggleClass("down");
+				loadCards(loadFromLocalStorage("selected-list"));
+			});
+
+			var selectedList = loadFromLocalStorage("selected-list");
+			if (selectedList != null) {
+				loadCards(selectedList);
+			} else {
+				$("#listSelectModal").modal();
+			}
+
+			var ls = new Backbone.LocalStorage("events-list");
+			// console.log(ls.findAll());
+			loadEvents(ls.findAll());
+
+			$(".save-template-button").on("click", function() {
+				saveCurrentToTemplate($("#save-template-input").val());
+			});
+
+			$(".load-template-button").on("click", function() {
+				loadFromTemplate($("#load-template-input").val());
+			});
+		});
+	</script>
+
+</body>
+</html>

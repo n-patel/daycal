@@ -1,0 +1,14 @@
+@import 'https://fonts.googleapis.com/css?family=Lato:100,300,400';
+
+body {
+    font-family: 'Lato';
+    font-weight: 300;
+}
+
+.landing-text {
+    font-size: 1.2em;
+}
+
+#preview-img {
+    max-width: 100%
+}
