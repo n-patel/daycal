@@ -112,5 +112,10 @@ function loadFromTemplate(templateName) {
 }
 
 function getTemplateList() {
-    return loadFromLocalStorage("templates").split(",");
+    var templates = loadFromLocalStorage("templates");
+    if (templates == null) {
+        return [];
+    } else {
+        return templates.split(",");
+    }
 }

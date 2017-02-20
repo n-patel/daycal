@@ -101,8 +101,9 @@
 						<h4 class="modal-title">Load From Template</h4>
 					</div>
 					<div class="modal-body">
-                        <div class="dropdown">
-                            <button class="btn btn-default dropdown-toggle template-dropdown" type="button" data-toggle="dropdown">
+                        <p id="no-templates-message">No templates available</p>
+                        <div class="dropdown" id="template-dropdown">
+                            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
                                 Template
                                 <span class="caret"></span>
                             </button>
@@ -169,8 +170,17 @@
 			loadEvents(ls.findAll());
 
             // Populate dropdown with saved templates
-            $('#load-template-modal').on("click", function() {
+            $('.load-template').on("click", function() {
                 var userTemplates = getTemplateList();
+
+                if (userTemplates.length == 0) {
+                    $("#no-templates-message").show();
+                    $("#template-dropdown").hide();
+                } else {
+                    $("#no-templates-message").hide();
+                    $("#template-dropdown").show();
+                }
+
                 $(".templates-listing").html("");
                 $.each(userTemplates, function(key, value) {
                     $(".templates-listing").append("<li class=\"load-template-item\" id=\"load-template-" + value + "\">" + value + "</li>");
