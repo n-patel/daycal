@@ -28,7 +28,7 @@
 		<div id="daily-header">
 			<a class="pull-right save-template" data-toggle="modal" data-target="#save-template-modal">Save as template</a>
 			<a class="pull-right load-template" data-toggle="modal" data-target="#load-template-modal">Load template</a>
-			<h2 id="today-date">Today</h2>	<!-- replaced with today's date - placeholder text important for spacing -->
+			<h2 id="today-date">Today</h2>	<!-- replaced with today's date - this placeholder text important for spacing -->
 		</div>
 		<div id="calendar">
 			<!-- content from javascript calendar -->
@@ -44,6 +44,8 @@
 			</ul>
 		</div>
 
+
+        <!-- LIST SELECTION MODAL -->
 		<div class="modal fade" id="listSelectModal" tabindex="-1">
 		  <div class="modal-dialog">
 			<div class="modal-content">
@@ -67,6 +69,8 @@
 		  </div>
 		</div>
 
+
+        <!-- TEMPLATE SAVE MODAL -->
 		<div class="modal fade" id="save-template-modal" tabindex="-1">
 			<div class="modal-dialog">
 				<div class="modal-content">
@@ -75,7 +79,6 @@
 						<h4 class="modal-title">New Template</h4>
 					</div>
 					<div class="modal-body">
-						<p>Warning: This feature is still buggy!</p>
 						<form>
 							<label for="templateNameInput">Template name</label>
 							<input type="text" class="form-control" id="save-template-input" placeholder="Enter template name">
@@ -89,6 +92,7 @@
 		</div>
 
 
+        <!-- TEMPLATE LOAD MODAL -->
 		<div class="modal fade" id="load-template-modal" tabindex="-1">
 			<div class="modal-dialog">
 				<div class="modal-content">
@@ -97,13 +101,19 @@
 						<h4 class="modal-title">Load From Template</h4>
 					</div>
 					<div class="modal-body">
-						<form>
-							<label for="templateNameInput">Template name</label>
-							<input type="text" class="form-control" id="load-template-input" placeholder="Enter template name">
-						</form>
+                        <div class="dropdown">
+                            <button class="btn btn-default dropdown-toggle template-dropdown" type="button" data-toggle="dropdown">
+                                Template
+                                <span class="caret"></span>
+                            </button>
+
+                            <ul class="dropdown-menu templates-listing">
+                                <!-- content from local storage-->
+                            </ul>
+                        </div>
 					</div>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-primary load-template-button" data-dismiss="modal">Load</button>
+						<button type="button" class="btn btn-primary load-template-button" data-dismiss="modal">Close</button>
 					</div>
 				</div>
 			</div>
@@ -146,6 +156,7 @@
 				loadCards(loadFromLocalStorage("selected-list"));
 			});
 
+            // Load cards
 			var selectedList = loadFromLocalStorage("selected-list");
 			if (selectedList != null) {
 				loadCards(selectedList);
@@ -153,17 +164,28 @@
 				$("#listSelectModal").modal();
 			}
 
+            // Load from last session
 			var ls = new Backbone.LocalStorage("events-list");
-			// console.log(ls.findAll());
 			loadEvents(ls.findAll());
 
-			$(".save-template-button").on("click", function() {
-				saveCurrentToTemplate($("#save-template-input").val());
-			});
+            // Populate dropdown with saved templates
+            var userTemplates = getTemplateList();
+            $.each(userTemplates, function(key, value) {
+                $(".templates-listing").append("<li class=\"load-template-item\" id=\"load-template-" + value + "\">" + value + "</li>");
+            });
 
-			$(".load-template-button").on("click", function() {
-				loadFromTemplate($("#load-template-input").val());
-			});
+            // Load template action
+            $(".load-template-item").on("click", function() {
+                var name = $(this).attr("id").replace("load-template-", "");
+                loadFromTemplate(name);
+                $('#load-template-modal').modal("toggle");
+            });
+
+            // Save template action
+            $(".save-template-button").on("click", function() {
+                saveCurrentToTemplate($("#save-template-input").val());
+            });
+
 		});
 	</script>
 

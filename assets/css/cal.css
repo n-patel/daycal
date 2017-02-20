@@ -125,3 +125,21 @@ rect.event-rect {
 .load-template {
     padding-right: 10px;
 }
+
+
+/* Emulate Bootstrap's styling for .dropdown-menu>li>a */
+.dropdown-menu>li {
+    display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: 400;
+    line-height: 1.42857143;
+    color: #333;
+    white-space: nowrap;
+    cursor: pointer;
+    background-image: none;
+}
+
+.dropdown-menu>li:hover {
+    background-color: rgb(240, 240, 240);
+}
