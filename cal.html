@@ -169,17 +169,22 @@
 			loadEvents(ls.findAll());
 
             // Populate dropdown with saved templates
-            var userTemplates = getTemplateList();
-            $.each(userTemplates, function(key, value) {
-                $(".templates-listing").append("<li class=\"load-template-item\" id=\"load-template-" + value + "\">" + value + "</li>");
+            $('#load-template-modal').on("click", function() {
+                var userTemplates = getTemplateList();
+                $(".templates-listing").html("");
+                $.each(userTemplates, function(key, value) {
+                    $(".templates-listing").append("<li class=\"load-template-item\" id=\"load-template-" + value + "\">" + value + "</li>");
+                });
+
+                // Click handler for loading templates (the list is generated dynamically and this handler must be assigned after creation)
+                $(".load-template-item").on("click", function() {
+                    var name = $(this).attr("id").replace("load-template-", "");
+                    loadFromTemplate(name);
+                    $('#load-template-modal').modal("toggle");
+                });
             });
 
-            // Load template action
-            $(".load-template-item").on("click", function() {
-                var name = $(this).attr("id").replace("load-template-", "");
-                loadFromTemplate(name);
-                $('#load-template-modal').modal("toggle");
-            });
+
 
             // Save template action
             $(".save-template-button").on("click", function() {
