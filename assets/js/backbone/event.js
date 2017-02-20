@@ -103,20 +103,19 @@ function saveCurrentToTemplate(templateName) {
         existingTemplates += ",";
     }
 
-    localStorage.setItem("templates", existingTemplates + "template-" + templateName);
+    localStorage.setItem("templates", existingTemplates + templateName);
 }
 
 function loadFromTemplate(templateName) {
-    console.log(templateName);
     var loaded = JSON.parse(localStorage.getItem("template-" + templateName));
-    console.log(loaded);
     loadEvents(loaded);
 }
 
 function getTemplateList() {
-    var templates = [];
-    $.each(localStorage, function(key, value) {
-        templates.push(key);
-    });
-    return templates;
+    var templates = loadFromLocalStorage("templates");
+    if (templates == null) {
+        return [];
+    } else {
+        return templates.split(",");
+    }
 }
